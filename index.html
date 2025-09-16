@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Прыгающие шарики</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            font-family: Arial, sans-serif;
+        }
+        canvas {
+            display: block;
+        }
+        .controls {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            background: rgba(255, 255, 255, 0.7);
+            padding: 10px;
+            border-radius: 5px;
+        }
+        button {
+            padding: 8px 15px;
+            margin: 5px;
+            border: none;
+            border-radius: 4px;
+            background: #4CAF50;
+            color: white;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        button:hover {
+            background: #45a049;
+        }
+    </style>
+</head>
+<body>
+    <canvas id="gameCanvas"></canvas>
+    <div class="controls">
+        <div id="ballCount">Шариков: 5</div>
+        <button id="addBall">Добавить шарик</button>
+        <button id="pauseBtn">Пауза</button>
+    </div>
+
+    <script>
+        // Получаем элементы DOM
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+        const ballCountElement = document.getElementById('ballCount');
+        const addBallButton = document.getElementById('addBall');
+        const pauseBtn = document.getElementById('pauseBtn');
+        
+        // Устанавливаем размер canvas
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+        
+        // Переменные игры
+        let balls = [];
+        let isPaused = false;
+        let houseImg, ballImg, bgImg;
+        let imagesLoaded = 0;
+        const totalImages = 3;
+        
+        // Загрузка изображений
+        function loadImages() {
+            houseImg = new Image();
+            houseImg.src = 'https://i.pinimg.com/736x/83/a2/be/83a2beadde89316b0bd43c5a58d956f2.jpg';
+            houseImg.onload = imageLoaded;
+            
+            ballImg = new Image();
+            ballImg.src = 'https://i.pinimg.com/736x/6d/f0/bc/6df0bcb84b425f6cf2f9b8954f1b0916.jpg';
+            ballImg.onload = imageLoaded;
+            
+            bgImg = new Image();
+            bgImg.src = 'https://i.pinimg.com/736x/1e/46/cd/1e46cdfd6cc833eb7a41fc65a56f0453.jpg';
+            bgImg.onload = imageLoaded;
+        }
+        
+        function imageLoaded() {
+            imagesLoaded++;
+            if (imagesLoaded === totalImages) {
+                initGame();
+                requestAnimationFrame(gameLoop);
+            }
+        }
+        
+        // Класс для шариков
+        class Ball {
+            constructor() {
+                this.radius = 25;
+                this.x = Math.random() * (canvas.width - this.radius * 2) + this.radius;
+                this.y = Math.random() * (canvas.height - this.radius * 2) + this.radius;
+                this.speedX = (Math.random() - 0.5) * 1.5;
+                this.speedY = (Math.random() - 0.5) * 1.5;
+                this.jumpPhase = Math.random() * Math.PI * 2;
+                this.jumpHeight = 3;
+                this.jumpSpeed = 0.08;
+                this.baseY = this.y;
+                this.isPaused = false;
+                this.pauseTimer = 0;
+                this.pauseDuration = 30;
+                this.wasAtMinSize = false;
+                this.minSizeThreshold = -0.95;
+            }
+            
+            update() {
+                if (this.isPaused) {
+                    this.pauseTimer--;
+                    if (this.pauseTimer <= 0) {
+                        this.isPaused = false;
+                    }
+                    return;
+                }
+                
+                this.x += this.speedX;
+                this.baseY += this.speedY;
+                
+                this.jumpPhase += this.jumpSpeed;
+                this.y = this.baseY + Math.sin(this.jumpPhase) * this.jumpHeight;
+                
+                const isAtMinSize = Math.sin(this.jumpPhase) < this.minSizeThreshold;
+                
+                if (isAtMinSize && !this.wasAtMinSize) {
+                    this.isPaused = true;
+                    this.pauseTimer = this.pauseDuration;
+                }
+                
+                this.wasAtMinSize = isAtMinSize;
+                
+                if (this.x <= this.radius || this.x >= canvas.width - this.radius) {
+                    this.speedX = -this.speedX;
+                    this.isPaused = true;
+                    this.pauseTimer = this.pauseDuration;
+                }
+                
+                if (this.baseY <= this.radius || this.baseY >= canvas.height - this.radius) {
+                    this.speedY = -this.speedY;
+                    this.isPaused = true;
+                    this.pauseTimer = this.pauseDuration;
+                }
+            }
+            
+            draw() {
+                let scale = 1.0 + 0.1 * Math.sin(this.jumpPhase);
+                let offsetY = 0;
+                
+                if (this.isPaused) {
+                    scale = 0.9;
+                    offsetY = 5;
+                }
+                
+                const size = this.radius * 2 * scale;
+                ctx.drawImage(
+                    ballImg, 
+                    this.x - size/2, 
+                    this.y - size/2 + offsetY, 
+                    size, 
+                    size
+                );
+            }
+        }
+        
+        // Инициализация игры
+        function initGame() {
+            // Создаем начальные шарики
+            for (let i = 0; i < 5; i++) {
+                balls.push(new Ball());
+            }
+            
+            // Обработчик клика по canvas для добавления шариков
+            canvas.addEventListener('click', (e) => {
+                if (isPaused) return;
+                
+                const rect = canvas.getBoundingClientRect();
+                const x = e.clientX - rect.left;
+                const y = e.clientY - rect.top;
+                
+                // Проверяем, не кликнули ли по дому или кнопкам
+                if (x > canvas.width/4 - 100 && x < canvas.width/4 + 100 && 
+                    y > canvas.height/2 - 100 && y < canvas.height/2 + 100) {
+                    return; // Клик по дому - игнорируем
+                }
+                
+                if (y < 60 && x < 200) return; // Клик по области счетчика
+                
+                const newBall = new Ball();
+                newBall.x = x;
+                newBall.y = y;
+                newBall.baseY = y;
+                balls.push(newBall);
+                updateBallCount();
+            });
+            
+            // Кнопка добавления шарика
+            addBallButton.addEventListener('click', () => {
+                const newBall = new Ball();
+                balls.push(newBall);
+                updateBallCount();
+            });
+            
+            // Кнопка паузы
+            pauseBtn.addEventListener('click', () => {
+                isPaused = !isPaused;
+                pauseBtn.textContent = isPaused ? 'Продолжить' : 'Пауза';
+                if (!isPaused) {
+                    requestAnimationFrame(gameLoop);
+                }
+            });
+            
+            // Обработчик изменения размера окна
+            window.addEventListener('resize', () => {
+                canvas.width = window.innerWidth;
+                canvas.height = window.innerHeight;
+            });
+            
+            updateBallCount();
+        }
+        
+        // Обновление счетчика шариков
+        function updateBallCount() {
+            ballCountElement.textContent = `Шариков: ${balls.length}`;
+        }
+        
+        // Основной игровой цикл
+        function gameLoop() {
+            if (isPaused) return;
+            
+            // Очищаем canvas
+            ctx.drawImage(bgImg, 0, 0, canvas.width, canvas.height);
+            
+            // Рисуем дом
+            const houseSize = 200;
+            ctx.drawImage(
+                houseImg, 
+                canvas.width/4 - houseSize/2, 
+                canvas.height/2 - houseSize/2, 
+                houseSize, 
+                houseSize
+            );
+            
+            // Обновляем и рисуем шарики
+            balls.forEach(ball => {
+                ball.update();
+                ball.draw();
+            });
+            
+            requestAnimationFrame(gameLoop);
+        }
+        
+        // Запускаем загрузку изображений
+        loadImages();
+    </script>
+</body>
+</html>
