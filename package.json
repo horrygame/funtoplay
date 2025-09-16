@@ -1,0 +1,13 @@
+{
+  "name": "ball-game",
+  "version": "1.0.0",
+  "description": "Игра с прыгающими шариками",
+  "main": "index.html",
+  "scripts": {
+    "build": "echo 'Building static site'",
+    "start": "serve -s ."
+  },
+  "dependencies": {
+    "serve": "^14.0.0"
+  }
+}
