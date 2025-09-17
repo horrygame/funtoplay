@@ -14,7 +14,6 @@
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             overflow: hidden;
-            background: linear-gradient(to bottom, #1e5799, #207cca);
             color: #333;
         }
         
@@ -89,23 +88,8 @@
             background: url('red_guys.png');
             background-size: contain;
             background-repeat: no-repeat;
-            transition: left 0.5s linear, top 0.3s ease-out;
             z-index: 10;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            color: white;
-            font-weight: bold;
-            font-size: 14px;
-        }
-        
-        .unit.jumping {
-            animation: jump 0.5s ease-in-out infinite alternate;
-        }
-        
-        @keyframes jump {
-            0% { transform: translateY(0); }
-            100% { transform: translateY(-20px); }
+            transition: transform 0.2s ease-out;
         }
         
         .house {
@@ -116,11 +100,6 @@
             background-size: contain;
             background-repeat: no-repeat;
             z-index: 5;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            color: white;
-            font-weight: bold;
         }
         
         .forest {
@@ -131,11 +110,6 @@
             background-size: contain;
             background-repeat: no-repeat;
             z-index: 5;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            color: white;
-            font-weight: bold;
         }
         
         .ground {
@@ -146,11 +120,6 @@
             background-size: contain;
             background-repeat: no-repeat;
             z-index: 5;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            color: white;
-            font-weight: bold;
         }
         
         .ground.ready {
@@ -219,17 +188,17 @@
         
         .level-badge {
             position: absolute;
-            top: -10px;
-            right: -10px;
+            top: -5px;
+            right: -5px;
             background: gold;
             color: #333;
-            width: 25px;
-            height: 25px;
+            width: 20px;
+            height: 20px;
             border-radius: 50%;
             display: flex;
             justify-content: center;
             align-items: center;
-            font-size: 14px;
+            font-size: 12px;
             font-weight: bold;
             box-shadow: 0 0 5px rgba(0, 0, 0, 0.5);
             z-index: 11;
@@ -248,18 +217,6 @@
             border-radius: 10px;
         }
         
-        .house.fallback::before {
-            content: '';
-            position: absolute;
-            width: 120px;
-            height: 40px;
-            background: #A52A2A;
-            top: -30px;
-            left: -10px;
-            border-radius: 10px 10px 0 0;
-            clip-path: polygon(0% 100%, 50% 0%, 100% 100%);
-        }
-        
         .forest.fallback {
             background: #228B22;
             border: 3px solid #006400;
@@ -274,27 +231,6 @@
         
         .ground.ready.fallback {
             background: #32CD32;
-        }
-        
-        .ground.ready.fallback::before {
-            content: '';
-            position: absolute;
-            width: 80%;
-            height: 80%;
-            background: #228B22;
-            border-radius: 50%;
-        }
-        
-        .shadow {
-            position: absolute;
-            width: 30px;
-            height: 10px;
-            background: rgba(0, 0, 0, 0.3);
-            border-radius: 50%;
-            bottom: -5px;
-            left: 5px;
-            z-index: 9;
-            transition: all 0.3s ease;
         }
     </style>
 </head>
@@ -333,7 +269,6 @@
             function checkImageLoad() {
                 const images = document.querySelectorAll('.unit, .house, .forest, .ground, #game-container');
                 images.forEach(img => {
-                    const fallbackClass = img.className.split(' ')[0] + '.fallback';
                     if (!img.complete || img.naturalHeight === 0) {
                         if (!img.classList.contains('fallback')) {
                             img.classList.add('fallback');
@@ -390,10 +325,8 @@
                     carrying: 0,
                     target: null,
                     element: null,
-                    shadow: null,
-                    jumpHeight: 0,
-                    jumpDirection: 1,
-                    isJumping: false
+                    isJumping: false,
+                    jumpInterval: null
                 };
                 
                 units.push(unit);
@@ -405,13 +338,6 @@
                 unitElement.style.left = `${unit.x}px`;
                 unitElement.style.top = `${unit.y}px`;
                 
-                // Создаем тень для юнита
-                const shadowElement = document.createElement('div');
-                shadowElement.className = 'shadow';
-                shadowElement.id = `shadow-${unit.id}`;
-                shadowElement.style.left = `${unit.x + 5}px`;
-                shadowElement.style.top = `${unit.y + 35}px`;
-                
                 // Добавляем бейдж уровня
                 const levelBadge = document.createElement('div');
                 levelBadge.className = 'level-badge';
@@ -419,10 +345,8 @@
                 unitElement.appendChild(levelBadge);
                 
                 document.getElementById('game-container').appendChild(unitElement);
-                document.getElementById('game-container').appendChild(shadowElement);
                 
                 unit.element = unitElement;
-                unit.shadow = shadowElement;
                 return unit;
             }
             
@@ -446,27 +370,19 @@
             
             // Функция прыжка юнита
             function jumpUnit(unit) {
-                if (!unit.isJumping && unit.task !== null) {
-                    unit.isJumping = true;
-                    unit.element.classList.add('jumping');
-                    
-                    // Анимация тени во время прыжка
-                    const shadow = unit.shadow;
-                    const jumpAnimation = setInterval(() => {
-                        if (unit.isJumping) {
-                            shadow.style.transform = 'scale(0.8)';
-                            setTimeout(() => {
-                                shadow.style.transform = 'scale(1)';
-                            }, 250);
-                        } else {
-                            clearInterval(jumpAnimation);
-                            shadow.style.transform = 'scale(1)';
-                        }
-                    }, 500);
-                } else if (unit.task === null && unit.isJumping) {
+                if (unit.isJumping) return;
+                
+                unit.isJumping = true;
+                const element = unit.element;
+                
+                // Прыжок вверх
+                element.style.transform = 'translateY(-15px)';
+                
+                // Возврат в исходное положение после прыжка
+                setTimeout(() => {
+                    element.style.transform = 'translateY(0)';
                     unit.isJumping = false;
-                    unit.element.classList.remove('jumping');
-                }
+                }, 200);
             }
             
             // Функция отправки юнита за деревом
@@ -476,7 +392,6 @@
                     freeUnit.task = 'gathering_wood';
                     freeUnit.target = { ...forestPosition };
                     moveUnitToTarget(freeUnit);
-                    jumpUnit(freeUnit);
                     updateUnitCounters();
                 }
             });
@@ -488,7 +403,6 @@
                     freeUnit.task = 'gathering_food';
                     freeUnit.target = { ...groundPosition };
                     moveUnitToTarget(freeUnit);
-                    jumpUnit(freeUnit);
                     updateUnitCounters();
                 }
             });
@@ -512,10 +426,9 @@
                 }
             });
             
-            // Функция перемещения юнита к цели
+            // Функция перемещения юнита к цели с прыжками
             function moveUnitToTarget(unit) {
                 const element = unit.element;
-                const shadow = unit.shadow;
                 const dx = unit.target.x - unit.x;
                 const dy = unit.target.y - unit.y;
                 const distance = Math.sqrt(dx * dx + dy * dy);
@@ -525,31 +438,34 @@
                     if (unit.task === 'gathering_wood') {
                         // Начинаем собирать дерево
                         unit.carrying = 0;
-                        const gatherTime = 3000 / unit.level; // Время сбора зависит от уровня
+                        const gatherTime = 3000 / unit.level;
                         
-                        // Останавливаем прыжок во время сбора
-                        unit.isJumping = false;
-                        element.classList.remove('jumping');
+                        // Останавливаем прыжки во время сбора
+                        if (unit.jumpInterval) {
+                            clearInterval(unit.jumpInterval);
+                            unit.jumpInterval = null;
+                        }
                         
                         setTimeout(() => {
                             unit.carrying = unit.capacity;
                             unit.task = 'returning_wood';
                             unit.target = { ...housePosition };
                             moveUnitToTarget(unit);
-                            jumpUnit(unit);
                         }, gatherTime);
                     } 
                     else if (unit.task === 'gathering_food') {
                         // Начинаем собирать еду
                         unit.carrying = 0;
-                        const growTime = 5000 / unit.level; // Время выращивания зависит от уровня
+                        const growTime = 5000 / unit.level;
                         
                         // Меняем текстуру грядки на "готова"
                         document.querySelector('.ground').classList.add('ready');
                         
-                        // Останавливаем прыжок во время сбора
-                        unit.isJumping = false;
-                        element.classList.remove('jumping');
+                        // Останавливаем прыжки во время сбора
+                        if (unit.jumpInterval) {
+                            clearInterval(unit.jumpInterval);
+                            unit.jumpInterval = null;
+                        }
                         
                         setTimeout(() => {
                             unit.carrying = unit.capacity;
@@ -560,7 +476,6 @@
                             document.querySelector('.ground').classList.remove('ready');
                             
                             moveUnitToTarget(unit);
-                            jumpUnit(unit);
                         }, growTime);
                     }
                     else if (unit.task === 'returning_wood') {
@@ -570,9 +485,11 @@
                         unit.task = null;
                         unit.target = null;
                         
-                        // Останавливаем прыжок
-                        unit.isJumping = false;
-                        element.classList.remove('jumping');
+                        // Останавливаем прыжки
+                        if (unit.jumpInterval) {
+                            clearInterval(unit.jumpInterval);
+                            unit.jumpInterval = null;
+                        }
                         
                         updateResourceCounters();
                         updateUnitCounters();
@@ -584,9 +501,11 @@
                         unit.task = null;
                         unit.target = null;
                         
-                        // Останавливаем прыжок
-                        unit.isJumping = false;
-                        element.classList.remove('jumping');
+                        // Останавливаем прыжки
+                        if (unit.jumpInterval) {
+                            clearInterval(unit.jumpInterval);
+                            unit.jumpInterval = null;
+                        }
                         
                         updateResourceCounters();
                         updateUnitCounters();
@@ -594,17 +513,20 @@
                     return;
                 }
                 
-                // Продолжаем движение с прыжками
+                // Запускаем прыжки каждые 0.5 секунд
+                if (!unit.jumpInterval) {
+                    unit.jumpInterval = setInterval(() => {
+                        jumpUnit(unit);
+                    }, 700); // 500ms замирание + 200ms прыжок
+                }
+                
+                // Продолжаем движение короткими прыжками
                 const speed = 2;
                 unit.x += (dx / distance) * speed;
                 unit.y += (dy / distance) * speed;
                 
                 element.style.left = `${unit.x}px`;
                 element.style.top = `${unit.y}px`;
-                
-                // Обновляем позицию тени
-                shadow.style.left = `${unit.x + 5}px`;
-                shadow.style.top = `${unit.y + 35}px`;
                 
                 requestAnimationFrame(() => moveUnitToTarget(unit));
             }
@@ -624,9 +546,9 @@
                     // Если еда закончилась, останавливаем всех юнитов
                     if (resources.food === 0) {
                         units.forEach(unit => {
-                            if (unit.task !== null) {
-                                unit.isJumping = false;
-                                unit.element.classList.remove('jumping');
+                            if (unit.jumpInterval) {
+                                clearInterval(unit.jumpInterval);
+                                unit.jumpInterval = null;
                             }
                         });
                     }
