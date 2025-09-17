@@ -3,809 +3,342 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Шариковое поселение</title>
+    <title>Survival of Red Balls</title>
     <style>
         body {
             margin: 0;
             padding: 0;
+            font-family: Arial, sans-serif;
             overflow: hidden;
-            font-family: 'Arial', sans-serif;
-            background-color: #2c3e50;
-            color: #ecf0f1;
+            background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADIAAAAyCAMAAAAp4XiDAAAAUVBMVEWFhYWDg4N3d3dtbW17e3t1dXWBgYGHh4d5eXlzc3OLi4ubm5uVlZWPj4+NjY19fX2JiYl/f39ra2uRkZGZmZlpaWmXl5dvb29xcXGTk5NnZ2c4z1mWAAAErklEQVRIx4WV2ZKiSBREj4C4IIuA4IIL7v//q1U5VdPT82IiJqJjIhQV4eTNvHkZ6v8+9P/6+P8Ckf8F8v8Bkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4Fkv4极简背景');
+            background-size: cover;
+            image-rendering: pixelated;
         }
-        canvas {
-            display: block;
-            background: #2c3e50;
+        
+        #game-container {
+            position: relative;
+            width: 100vw;
+            height: 100vh;
+            overflow: hidden;
         }
-        .controls {
+        
+        .resource-counter {
             position: absolute;
             top: 10px;
             left: 10px;
-            background: rgba(44, 62, 80, 0.85);
+            background: rgba(0, 0, 0, 0.7);
+            color: white;
+            padding: 10px;
+            border-radius: 5px;
+            font-size: 18px;
+        }
+        
+        .unit {
+            position: absolute;
+            width: 40px;
+            height: 40px;
+            background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACgAAAAoCAYAAACM/rhtAAAA+UlEQVRYR+2W0QqCQBBF3Y0fQj9B9BdEf0H0F0R/QfQX9BdEf0H0F0R/QfQX9BdEf0H0F0R/QfQX9BdEf0H0F0R/QfQXRH9B9BdEf0H0F0R/QfQXRH9B9BdEf0H0F0R/QfQXRH9B9BdEf0H0F0R/QfQXRH9B9BdEf0H0F0R/QfQXRH9B9BdEf0H0F0R/QfQXRH9B9BdEf0H0F0R/QfQXRH9B9BdEf0H0F0R/QfQXRH9B9BdEf0H0F0R/QfQXRH9B9BdEf0H0F0R/QfQXRH9B9BdEf0H0F0R/QfQXRP8/6D8ej1itVthsNlitVlitVlitVlitVlitVlitVlitVlitVlitVlitVlitVlitVlitVlgfQO8L8gF6X5AP0PuCfIDeF+QD9L4gH6D3BfkAvS/IB+h9QT5A7wvyAXpfkA/Q+4J8gN4X5AP0viAfoPcF+QC9L8gH6H1BPkDvC/IBel+QD9D7gnyA3hfkA/S+IB+g9wX5AL0vyAfofUE+QO8L8gF6X5AP0PuCfIDeF+QD9L4gH6D3BfkAvS/IB+h9QT5A7wvyAXpfkA/Q+4J8gN4X5AP0viAfoPcF+QC9L8gH6H1BPkDvC/IBel+QD9D7gnyA3hfkA/S+IB+g9wX5AL0vyAfofUE+QO8L8gF6X5AP0PuCfIDeF+QD9L4gH6D3BfkAvS/IB+h9QT5A7wvyAXpfkA/Q+4J8gN4X5AP0viAfoPcF+QC9L8gH6H1BPkDvC/IBel+QD9D7gnyA3hfkA/S+IB+g9wX5AL0vyAfofUE+QO8L8gF6X5AP0PuCfIDeF+QD9L4gH6D3BfkAvS/IB+h9QT5A7wvyAXpfkA/Q+4J8gN4X5AP0viAfoPcF+QC9L8gH6H1BPkDvC/IBel+QD9D7gnyA3hfkA/S+IB+g9wX5AL0vyAfofUE+QO8L8gF6X5AP0PuCfIDeF+QD9L4gH6D3BfkAvS/IB+h9QT5A7wvyAXpfkA/Q+4J8gN4X5AP0viAfoPcF+QC9L8gH6H1BPkDvC/IBel+QD9D7gnyA3hfkA/S+IB+g9wX5AL0vyAfofUE+QO8L8gF6X5AP0PuCfIDeF+QD9L4gH6D3BfkAvS/IB+h9QT5A7wvyAXpfkA/Q+4J8gN4X5AP0viAfoPcF+QC9L8gH6H1BPkDvC/IBel+QD9D7gnyA3hfkA/S+IB+g9wX5AL0vyAfofUE+QO8L8gF6X5AP0PuCfIDeF+QD9L4gH6D3BfkAvS/IB+h9QT5A7wvyAXpfkA/Q+4J8gN4X5AP0viAfoPcF+QC9L8gH6H1BPkDvC/IBel+QD9D7gnyA3hfkA/S+IB+g9wX5AL0vyAfofUE+QO8L8gF6X5AP0PuCfIDeF+QD9L4gH6D3BfkAvS/IB+h9QT5A7wvyAXpfkA/Q+4J8gN4X5AP0viAfoPcF+QC9L8gH6H1BPkDvC/IBel+QD9D7gnyA3hfkA/S+IB+g9wX5AL0vyAfofUE+QO8L8gF6X5AP0PuCfIDeF+QD9L4gH6D3BfkAvS/IB+h9QT5A7wvyAXpfkA/Q+4J8gN4X5AP0viAfoPcF+QC9L8gH6H1BPkDvC/IBel+QD9D7gnyA3hfkA/S+IB+g9wX5AL0vyAfofUE+QO8L8gF6X5AP0PuCfIDeF+QD9L4gH6D3BfkAvS/IB+h9QT5A7wvyAXpfkA/Q+4J8gN4X5AP0viAfoPcF+QC9L8gH6H1BPkDvC/IBel+QD9D7gnyA3hfkA/S+IB+g9wX5AL0vyAfofUE+QO8L8gF6X5AP0PuCfIDeF+QD9L4gH6D3BfkAvS/IB+h9QT5A7wvyAXpfkA/Q+4J8gN4X5AP0viAfoPcF+QC9L8gH6H1BPkDvC/IBel+QD9D7gnyA3hfkA/S+IB+g9wX5AL0vyAfofUE+QO8L8gF6X5AP0PuCfIDeF+QD9L4gH6D3BfkAvS/IB+h9QT5A7wvyAXpfkA/Q+4J8gN4X5AP0viAfoPcF+QC9L8gH6H1BPkDvC/IBel+QD9D7gnyA3hfkA/S+IB+g9wX5AL0vyAfofUE+QO8L8gF6X5AP0PuCfIDeF+QD9L4gH6D3BfkAvS/IB+h9QT5A7wvyAXpfkA/Q+4J8gN4X5AP0viAfoPcF+QC9L8gH6H1BPkDvC/IBel+QD9D7gnyA3hfkA/S+IB+g9wX5AL0vyAfofUE+QO8L8gF6X5AP0PuCfIDeF+QD9L4gH6D3BfkAvS/IB+h9QT5A7wvyAXpfkA/Q+4J8gN4X5AP0viAfoPcF+QC9L8gH6H1BPkDvC/IBel+QD9D7gnyA3hfkA/S+IB+g9wX5AL0vyAfofUE+QO8L8gF6X5AP0PuCfIDeF+QD9L4gH6D3BfkAvS/IB+h9QT5A7wvyAXpfkA/Q+4J8gN4X5AP0viAfoPcF+QC9L8gH6H1BPkDvC/IBel+QD9D7gnyA3hfkA/S+IB+g9wX5AL0vyAfofUE+QO8L8gF6X5AP0PuCfIDeF+QD9L4gH6D3BfkAvS/IB+h9QT5A7wvyAXpfkA/Q+4J8gN4X5AP0viAfoPcF+QC9L8gH6H1BPkDvC/IBel+QD9D7gnyA3hfkA/S+IB+g9wX5AL0vyAfofUE+QO8L8gF6X5AP0PuCfIDeF+QD9L4gH6D3BfkAvS/IB+h9QT5A7wvyAXpfkA/Q+4J8gN4X5AP0viAfoPcF+QC9L8gH6H1BPkDvC/IBel+QD9D7gnyA3hfkA/S+IB+g9wX5AL0vyAfofUE+QO8L8gF6X5AP0PuCfIDeF+QD9L4gH6D3BfkAvS/IB+h9QT5A7wvyAXpfkA/Q+4J8gN4X5AP0viAfoPcF+QC9L8gH6H1BPkDvC/IBel+QD9D7gnyA3hfkA/S+IB+g9wX5AL0vyAfofUE+QO8L8gF6X5AP0PuCfIDeF+QD9L4gH6D3BfkAvS/IB+h9QT5A7wvyAXpfkA/Q+4J8gN4X5AP0viAfoPcF+QC9L8gH6H1BPkDvC/IBel+QD9D7gnyA3hfkA/S+IB+g9wX5AL0vyAfofUE+QO8L8gF6X5AP0PuCfIDeF+QD9L4gH6D3BfkAvS/IB+h9QT5A7wvyAXpfkA/Q+4J8gN4X5AP0viAfoPcF+QC9L8gH6H1BPkDvC/IBel+QD9D7gnyA3hfkA/S+IB+g9wX5AL0vyAfofUE+QO8L8gF6X5AP0PuCfIDeF+QD9L4gH6D3BfkAvS/IB+h9QT5A7wvyAXpfkA/Q+4J8gN4X5AP0viAfoPcF+QC9L8gH6H1BPkDvC/IBel+QD9D7gnyA3hfkA/S+IB+g9wX5AL0vyAfofUE+QO8L8gF6X5AP0PuCfIDeF+QD9L4gH6D3BfkAvS+ID/B6veJwOGC/32O322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322G322极简红色单位');
+            background-size: contain;
+            background-repeat: no-repeat;
+            transition: all 0.5s ease;
+            z-index: 10;
+        }
+        
+        .house {
+            position: absolute;
+            width: 100px;
+            height: 100px;
+            background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAGQAAABkCAYAAABw4pVUAAAEIElEQVR4Xu2cW24bMQxE1Zv+/1dO0xRw4CBNvG5pKdqhDkE8iDkPLI1WdvL19fX1nT9fX1/fv7+/v39+fr7//Pz8/v79+/f9+/fv+8+fP9+/fv36/vnz5/ePHz++f/z48f3z58/vX79+ff/+/fv79+/f33/+/Pn+9+/f99+/f7///fv3/e/fv+9///59//379/3v37/vf//+ff/79+/7379/3//+/fv+9+/f979//77//fv3/e/fv+9///59//v37/vfv3/f//79+/7379/3v3//vv/9+/f979+/73///n3/+/fv+9+/f9///v37/vfv3/e/f/++//379/3v37/vf//+ff/79+/7379/3//+/fv+9+/f979//77//fv3/e/fv+9///59//v37/vfv3/f//79+/7379/3v3//vv/9+/f979+/73///n3/+/fv+9+/f9///v37/vfv3/e/f/++//379/3v37/vf//+ff/79+/7379/3//+/fv+9+/f979//77//fv3/e/fv+9///59//v37/vfv3/f//79++7+9+/f979//77//fv3/e/fv+9///59//v37/vfv3/f//79+/7379/3v3//vv/9+/f979+/73///n3/+/fv+9+/f9///v37/vfv3/e/f/++//379/3v37/vf//+ff/79+/7379/3//+/fv+9+/f979//77//fv3/e/fv+9///59//v37/vfv3/f//79++7+9+/f979//77//fv3/e/fv+9///59//v37/vfv3/f//79+/7379/3v3//vv/9+/f979+/73///n3/+/fv+9+/f9///v37/vfv3/e/f/++//379/3v37/vf//+ff/79+/7379/3//+/fv+9+/f979//77//fv3/e/fv+9///59//v37/vfv3/f//79++7+9+/f979//77//fv3/e/fv+9///59//v37/vfv3/f//79+/7379/3v3//vv/9+/f979+/73///n3/+/fv+9+/f9///v37/vfv3/e/f/++//379/3v37/vf//+ff/79+/7379/3//+/fv+9+/f979//77//fv3/e/fv+9///59//v37/vfv3/f//79++7+9+/f979//77//fv3/e/fv+9///59//v37/vfv3/f//79+/7379/3v3//vv/9+/f979+/73///n3/+/fv+9+/f9///v37/vfv3/e/f/++//379/3v37/vf//+ff/79+/7379/3//+/fv+9+/f979//77//fv3/e/fv+9///59//v37/vfv3/f//79++7+9+/f979//77//fv3/e/fv+9///59//v37/vfv3/f//79+/7379/3v3//vv/9+/f979+/73///n3/+/fv+9+/f9///v37/vfv3/e/f/++//379/3v37/vf//+ff/79+/7379/3//+/fv+9+/f979//77//fv3/e/fv+9///59//v37/vfv3/f//79++7+9+/f979//77//fv3/e/fv+9///59//v37/vfv3/f//79+/7379/3v3//vv/9+/f979+/73///n3/+/fv+9+/f9///v37/vfv3/e/f/++//379/3v37/vf//+ff/79+/7379/3//+/fv+9+/f979//77//fv3/e/fv+9///59//v37/vfv3/f//79++7+9+/f979//77//fv3/e/fv+9///59//v37/vfv3/f//79+/7379/3v3//vv/9+/f979+/73///n3/+/fv+9+/f9///v37/vfv3/e/f/++//379/3v37/vf//+ff/79+/7379/3//+/fv+9+/f979//77//fv3/e/fv+9///59//v37/vfv3/f//79++7+9+/f979//77//fv3/e/fv+9///59//v37/vfv3/f//79+/7379/3v3//vv/9+/f979+/73///n3/+/fv+9+/f9///v37/vfv3/e/f/++//379/3v37/vf//+ff/79+/7379/3//+/fv+9+/f979//77//fv3/e/fv+9///59//v37/vfv3/f//79++7+9+/f979//77//fv3/e/fv+9///59//v37/vfv3/f//79+/7379/3v3//vv/9+/f979+/73///n3/+/fv+9+/f9///v37/vfv3/e/f/++//379/3v37/vf//+ff/79+/7379/3//+/fv+9+/f979//77//fv3/e/fv+9///59//v37/vfv3/f//79++7+9+/f979//77//fv3/e/fv+9///59//v37/vfv3/f//79+/7379/3v3//vv/9+/f979+/73///n3/+/fv+9+/f9///v37/vfv3/e/f/++//379/3v37/vf//+ff/79+/7379/3//+/fv+9+/f979//77//fv3/e/fv+9///59//v37/vfv3/f//79++7+9+/f979//77//fv3/e/fv+9///59//v37/vfv3/f//79+/7379/3v3//vv/9+/f979+/73///n3/+/fv+9+/f9///v37/vfv3/e/f/++//379/3v37/vf//+ff/79+/7379/3//+/fv+9+/f979//77//fv3/e/fv+9///59//v37/vfv3/f//79++7+9+/f979//77//fv3/e/fv+9///59//v37/vfv3/f//79+/7379/3v3//vv/9+/f979+/73///n3/+/fv+9+/f9///v37/vfv3/e/f/++//379/3v37/vf//+ff/79+/7379/3//+/fv+9+/f979//77//fv3/e/fv+9///59//v37/vfv3/f//79++7+9+/f979//77//fv3/e/fv+9///59//v37/vfv3/f//79+/7379/3v3//vv/9+/f979+/73///n3/+/fv+9+/f9///v37/vfv3/e/f/++//379/3v37/vf//+ff/79+/7379/3//+/fv+9+/f979//77//fv3/e/fv+9///59//v37/vfv3/f//79++7+9+/f979//77//fv3/e/fv+9///59//v37/vfv3/f//79+/7379/3v3//vv/9+/f979+/73///n3/+/fv+9+/f9///v37/vfv3/e/f/++//379/3v37/vf//+ff/79+/7379/3//+/fv+9+/f979//77//fv3/e/fv+9///59//v37/vfv3/f//79++7+9+/f979//77//fv3/e/fv+9///59//v37/vfv3/f//79+/7379/3v3//vv/9+/f979+/73///n3/+/fv+9+/f9///v37/vfv3/e/f/++//379/3v37/vf//+ff/79+/7379/3//+/fv+9+/f979//77//fv3/e/fv+9///59//v37/vfv3/f//79++7+9+/f979//77//fv3/e/fv+9///59//v37/vfv3/f//79+/7379/3v3//vv/9+/f979+/73///n3/+/fv+9+/f9///v37/vfv3/e/f/++//379/3v37/vf//+ff/79+/7379/3//+/fv+9+/f979//77//fv3/e/fv+9///59//v37/vfv3/f//79++7+9+/f979//77//fv3/e/fv+9///59//v37/vfv3/f//79+/7379/3v3//vv/9+/f979+/73///n3/+/fv+9+/f9///v37/vfv3/e/f/++//379/3v37/vf//+ff/79+/7379/3//+/fv+9+/f979//77//fv3/e/fv+9///59//v37/vfv3/f//79++7+9+/f979//77//fv3/e/fv+9///59//v37/vfv3/f//79+/7379/3v3//vv/9+/f979+/73///n3/+/fv+9+/f9///v37/vfv3/e/f/++//379/3v37/vf//+ff/79+/7379/3//+/fv+9+/f979//77//fv3/e/fv+9///59//v37/vfv3/f//79++7+9+/f979//77//fv3/e/fv+9///59//v37/vfv3/f//79+/7379/3v3//vv/9+/f979+/73///n3/+/fv+9+/f9///v37/vfv3/e/f/++//379/3v37/vf//+ff/79+/7379/3//+/fv+9+/f979//77//fv3/e/fv+9///59//v37/vfv3/f//79++7+9+/f979//77//fv3/e/fv+9///59//v37/vfv3/f//79+/7379/3v3//vv/9+/f979+/73///n3/+/fv+9+/f9///v37/vfv3/e/f/++//379/3v37/vf//+ff/79+/7379/3//+/fv+9+/f979//77//fv3/e/fv+9///59//v37/vfv3/f//79++7+9+/f979//77//fv3/e/fv+9///59//v37/vfv3/f//79+/7379/3v3//vv/9+/f979+/73///n3/+/fv+9+/f9///v37/vfv3/e/f/++//379/3v37/vf//+ff/79+/7379/3//+/fv+9+/f979//77//fv3/e/fv+9///59//v37/vfv3/f//79++7+9+/f979//77//fv3/e/fv+9///59//v37/vfv3/f//79+/7379/3v3//vv/9+/f979+/73///n3/+/fv+9+/f9///v37/vfv3/e/f/++//379/3v37/vf//+ff/79+/7379/3//+/fv+9+/f979//77//fv3/e/fv+9///59//v37/vfv3/f//79++7+9+/f979//77//fv3/e/fv+9///59//v37/vfv3/f//79+/7379/3v3//vv/9+/f979+/73///n3/+/fv+9+/f9///v37/vfv3/e/f/++//379/3v37/vf//+ff/79+/7379/3//+/fv+9+/f979//77//fv3/e/fv+9///59//v37/vfv3/f//79++7+9+/f979//77//fv3/e/fv+9///59//v37/vfv3/f//79+/7379/3v3//vv/9+/f979+/73///n3/+/fv+9+/f9///v37/vfv3/e/f/++//379/3v37/vf//+ff/79+/7379/3//+/fv+9+/f979//77//fv3/e/fv+9///59//v37/vfv3/f//79++7+9+/f979//77//fv3/e/fv+9///59//v37/vfv3/f//79+/7379/3v3//vv/9+/f979+/73///n3/+/fv+9+/f9///v37/vfv3/e/f/++//379/3v37/vf//+ff/79+/7379/3//+/fv+9+/f979//77//fv3/e/fv+9///59//v37/vfv3/f//79++7+9+/f979//77//fv3/e/fv+9///59//v37/vfv3/f//79+/7379/3v3//vv/9+/f979+/73///n3/+/fv+9+/f9///v37/vfv3/e/f/++//379/3v37/vf//+ff/79+/7379/3//+/fv+9+/f979//77//fv3/e/fv+9///59//v37/vfv3/f//79++7+9+/f979//77//fv3/e/fv+9///59//v37/vfv3/f//79+/7379/3v3//vv/9+/f979+/73///n3/+/fv+9+/f9///v37/vfv3/e/f/++//379/3v37/vf//+ff/79+/7379/3//+/fv+9+/f979//77//fv3/e/fv+9///59//v37/vfv3/f//79++7+9+/f979//77//fv3/e/fv+9///59//v37/vfv3/f//79+/7379/3v3//vv/9+/f979+/73///n3/+/fv+9+/f9///v37/vfv3/e/f/++//379/3v37/vf//+ff/79+/7379/3//+/fv+9+/f979//77//fv3/e/fv+9///59//v37/vfv3/f//79++7+9+/f979//77//fv3/e/fv+9///59//v37/vfv3/f//79+/7379/3v3//vv/9+/f979+/73///n3/+/fv+9+/f9///v37/vfv3/e/f/++//379/3v37/vf//+ff/79+/7379/3//+/fv+9+/f979//77//fv3/e/fv+9///59//v37/vfv3/f//79++7+9+/f979//77//fv3/e/fv+9///59//v37/vfv3/f//79+/7379/3v3//vv/9+/f979+/73///n3/+/fv+9+/f9///v37/vfv3/e/f/++//379/3v37/vf//+ff/79+/7379/3//+/fv+9+/f979//77//fv3/e/fv+9///59//v37/vfv3/f//79++7+9+/f979//77//fv3/e/fv+9///59//v37/vfv3/f//79+/7379/3v3//vv/9+/f979+/73///n3/+/fv+9+/f9///v37/vfv3/e/f/++//379/3v37/vf//+ff/79+/7379/3//+/fv+9+/f979//77//fv3/e/fv+9///59//v37/vfv3/f//79++7+9+/f979//77//fv3/e/fv+9///59//v37/vfv3/f//79+/7379/3v3//vv/9+/f979+/73///n3/+/fv+9+/f9///v37/vfv3/e/f/++//379/3v37/vf//+ff/79+/7379/3//+/fv+9+/f979//77//fv3/e/fv+9///59//v37/vfv3/f//79++7+9+/f979//77//fv3/e/fv+9///59//v37/vfv3/f//79+/7379/3v3//vv/9+/f979+/73///n3/+/fv+9+/f9///v37/vfv3/e/f/++//379/3v37/vf//+ff/79+/7379/3//+/fv极简房屋');
+            background-size: contain;
+            background-repeat: no-repeat;
+            z-index: 5;
+        }
+        
+        .forest {
+            position: absolute;
+            width: 100px;
+            height: 100px;
+            background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAGQAAABkCAYAAABw4pVUAAAEIElEQVR4Xu2cW24bMQxE1Zv+/1dO0xRw4CBNvG5pKdqhDkE8iDkPLI1WdvL19fX1nT9fX1/fv7+/v39+fr7//Pz8/v79+/f9+/fv+8+fP9+/fv36/vnz5/ePHz++f/z48f3z58/vX79+ff/+/fv79+/f33/+/Pn+9+/f97+//77//fv3/e/fv+9///59//v37/vfv3/f//79+/7379/3v3//vv/9+/f979+/73///n3/+/fv+9+/f9///v37/vfv3/e/f/++//379/3v37/vf//+ff/79+/7379/3//+/fv+9+/f979//77//fv3/e/fv+9///59//v37/vfv3/f//79++7+9+/f979//77//fv3/e/fv+9///59//v37/vfv3/f//79+/7379/3v3//vv/9+/f979+/73///n3/+/fv+9+/f9///v37/vfv3/e/f/++//379/3v37/vf//+ff/79+/7379/3//+/fv+9+/f979//77//fv3/e/fv+9///59//v37/vfv3/f//79++7+9+/f979//77//fv3/e/fv+9///59//v37/vfv3/f//79+/7379/3v3//vv/9+/f979+/73///n3/+/fv+9+/f9///v37/vfv3/e/f/++//379/3v37/vf//+ff/79+/7379/3//+/fv+9+/f979//77//fv3/e/fv+9///59//v37/vfv3/f//79++7+9+/f979//77//fv3/e/fv+9///59//v37/vfv3/f//79+/7379/3v3//vv/9+/f979+/73///n3/+/fv+9+/f9///v37/vfv3/e/f/++//379/3v37/vf//+ff/79+/7379/3//+/fv+9+/f979//77//fv3/e/fv+9///59//v37/vfv3/f//79++7+9+/f979//77//fv3/e/fv+9///59//v37/vfv3/f//79+/7379/3v3//vv/9+/f979+/73///n3/+/fv+9+/f9///v37/vfv3/e/f/++//379/3v37/vf//+ff/79+/7379/3//+/fv+9+/f979//77//fv3/e/fv+9///59//v37/vfv3/f//79++7+9+/f979//77//fv3/e/fv+9///59//v37/vfv3/f//79+/7379/3v3//vv/9+/f979+/73///n3/+/fv+9+/f9///v37/vfv3/e/f/++//379/3v37/vf//+ff/79+/7379/3//+/fv+9+/f979//77//fv3/e/fv+9///59//v37/vfv3/f//79++7+9+/f979//77//fv3/e/fv+9///59//v37/vfv3/f//79+/7379/3v3//vv/9+/f979+/73///n3/+/fv+9+/f9///v37/vfv3/e/f/++//379/3v37/vf//+ff/79+/7379/3//+/fv+9+/f979//77//fv3/e/fv+9///59//v37/vfv3/f//79++7+9+/f979//77//fv3/e/fv+9///59//v37/vfv3/f//79+/7379/3v3//vv/9+/f979+/73///n3/+/fv+9+/f9///v37/vfv3/e/f/++//379/3v37/vf//+ff/79+/7379/3//+/fv+9+/f979//77//fv3/e/fv+9///59//v37/vfv3/f//79++7+9+/f979//77//fv3/e/fv+9///59//v37/vfv3/f//79+/7379/3v3//vv/9+/f979+/73///n3/+/fv+9+/f9///v37/vfv3/e/f/++//379/3v37/vf//+ff/79+/7379/3//+/fv极简森林');
+            background-size: contain;
+            background-repeat: no-repeat;
+            z-index: 5;
+        }
+        
+        .ground {
+            position: absolute;
+            width: 100px;
+            height: 100px;
+            background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAGQAAABkCAYAAABw4pVUAAAEIElEQVR4Xu2cW24bMQxE1Zv+/1dO0xRw4CBNvG5pKdqhDkE8iDkPLI1WdvL19fX1nT9fX1/fv7+/v39+fr7//Pz8/v79+/f9+/fv+8+fP9+/fv36/vnz5/ePHz++f/z48f3z58/vX79+ff/+/fv79+/f33/+/Pn+9+/f97+//77//fv3/e/fv+9///59//v37/vfv3/f//79+/7379/3v3//vv/9+/f979+/73///n3/+/fv+9+/f9///v37/vfv3/e/f/++//379/3v37/vf//+ff/79+/7379/3//+/fv+9+/f979//77//fv3/e/fv+9///59//v37/vfv3/f//79++7+9+/f979//77//fv3/e/fv+9///59//v37/vfv3/f//79+/7379/3v3//vv/9+/f979+/73///n3/+/fv+9+/f9///v37/vfv3/e/f/++//379/3v37/vf//+ff/79+/7379/3//+/fv+9+/f979//77//fv3/e/fv+9///59//v37/vfv3/f//79++7+9+/f979//77//fv3/e/fv+9///59//v37/vfv3/f//79+/7379/3v3//vv/9+/f979+/73///n3/+/fv极简土地');
+            background-size: contain;
+            background-repeat: no-repeat;
+            z-index: 5;
+        }
+        
+        .ground.ready {
+            background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAGQAAABkCAYAAABw4pVUAAAEIElEQVR4Xu2cW24bMQxE1Zv+/1dO0xRw4CBNvG5pKdqhDkE8iDkPLI1WdvL19fX1nT9fX1/fv7+/v39+fr7//Pz8/v79+/f9+/fv+8+fP9+/fv36/vnz5/ePHz++f/z48f3z58/vX79+ff/+/fv79+/f33/+/Pn+9+/f97+//77//fv3/e/fv+9///59//v37/vfv3/f//79+/7379/3v3//vv/9+/f979+/73///n3/+/fv+9+/f9///v37/vfv3/e/f/++//379/3v37/vf//+ff/79+/7379/3//+/fv+9+/f979//77//fv3/e/fv+9///59//v37/vfv3/f//79++7+9+/f979//77//fv3/e/fv+9///59//v37/vfv3/f//79+/7379/3v3//vv/9+/f979+/73///n3/+/fv+9+/f9///v37/vfv3/e/f/++//379/3v37/vf//+ff/79+/7379/3//+/fv+9+/f979//77//fv3/e/fv+9///59//v37/vfv3/f//79++7+9+/f979//77//fv3/e/fv+9///59//v37/vfv3/f//79+/7379/3v极简成熟土地');
+        }
+        
+        .controls {
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0, 0, 0, 0.7);
             padding: 15px;
-            border-radius: 8px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.5);
-            width: 250px;
-            backdrop-filter: blur(5px);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-        }
-        .resources {
-            margin-bottom: 15px;
-            padding-bottom: 10px;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
-        }
-        .resource {
+            border-radius: 10px;
             display: flex;
-            justify-content: space-between;
-            margin: 5px 0;
-            padding: 3px 5px;
-            border-radius: 3px;
-            background: rgba(0, 0, 0, 0.2);
+            gap: 10px;
         }
+        
         button {
-            padding: 8px 15px;
-            margin: 5px 0;
+            padding: 10px 15px;
             border: none;
-            border-radius: 4px;
-            background: #3498db;
+            border-radius: 5px;
+            background: #4CAF50;
             color: white;
             cursor: pointer;
-            font-size: 14px;
-            transition: all 0.3s;
-            width: 100%;
+            font-size: 16px;
         }
-        button:hover {
-            background: #2980b9;
-            transform: translateY(-2px);
-        }
+        
         button:disabled {
-            background: #7f8c8d;
+            background: #cccccc;
             cursor: not-allowed;
-            transform: none;
         }
-        .selected-ball-info {
-            margin-top: 15px;
-            padding: 10px;
-            background: rgba(52, 152, 219, 0.2);
-            border-radius: 5px;
-            display: none;
-        }
-        .upgrade-btn {
-            background: #27ae60;
-        }
-        .upgrade-btn:hover {
-            background: #219653;
-        }
-        .work-btn {
-            background: #e67e22;
-        }
-        .work-btn:hover {
-            background: #d35400;
-        }
-        .move-btn {
-            background: #9b59b6;
-        }
-        .move-btn:hover {
-            background: #8e44ad;
-        }
-        h2 {
-            margin-top: 0;
-            text-align: center;
-            color: #f1c40f;
-            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
-        }
-        h3 {
-            margin: 5px 0;
-            color: #f1c40f;
-        }
-        .progress-bar {
-            height: 8px;
-            background: rgba(0, 0, 0, 0.3);
-            border-radius: 4px;
-            margin: 5px 0;
-            overflow: hidden;
-        }
-        .progress-fill {
-            height: 100%;
-            background: #3498db;
-            border-radius: 4px;
-            transition: width 0.3s;
-        }
-        .building-info {
+        
+        .unit-info {
             position: absolute;
-            background: rgba(44, 62, 80, 0.9);
+            top: 10px;
+            right: 10px;
+            background: rgba(0, 0, 0, 0.7);
+            color: white;
             padding: 10px;
             border-radius: 5px;
-            display: none;
-            max-width: 200px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-        }
-        .ball-indicator {
-            position: absolute;
-            width: 10px;
-            height: 10px;
-            border-radius: 50%;
-            background: #e74c3c;
-            box-shadow: 0 0 5px #e74c3c;
+            font-size: 16px;
         }
     </style>
 </head>
 <body>
-    <canvas id="gameCanvas"></canvas>
-    <div class="controls">
-        <h2>Шариковое поселение</h2>
-        <div class="resources">
-            <div class="resource">Дерево: <span id="woodCount">100</span></div>
-            <div class="resource">Еда: <span id="foodCount">50</span></div>
-            <div class="resource">Шариков: <span id="ballCount">5</span></div>
+    <div id="game-container">
+        <div class="resource-counter">
+            <div>Дерево: <span id="wood-count">100</span></div>
+            <div>Еда: <span id="food-count">100</span></div>
         </div>
-        <button id="addBall" disabled>Новый поселенец (50 еды)</button>
-        <div class="selected-ball-info" id="selectedBallInfo">
-            <h3>Выбранный шарик</h3>
-            <div>Уровень: <span id="ballLevel">1</span></div>
-            <div>Грузоподъемность: <span id="ballCapacity">100</span></div>
-            <div>Скорость: <span id="ballSpeed">1</span></div>
-            <div>Потребление: <span id="ballConsumption">1</span> ед/мин</div>
-            <div class="progress-bar">
-                <div id="ballProgress" class="progress-fill" style="width: 0%"></div>
-            </div>
-            <button class="upgrade-btn" id="upgradeBall">Улучшить (25 еды)</button>
-            <button class="work-btn" id="assignWood">Рубить дерево</button>
-            <button class="work-btn" id="assignFarm">Работать на ферме</button>
-            <button class="move-btn" id="moveBall">Переместить</button>
+        
+        <div class="unit-info">
+            <div>Юнитов: <span id="unit-count">3</span></div>
+            <div>Свободно: <span id="free-unit-count">3</span></div>
         </div>
+        
+        <div class="house" style="top: 300px; left: 400px;"></div>
+        <div class="forest" style="top: 150px; left: 200px;"></div>
+        <div class="ground" style="top: 450px; left: 200px;"></div>
+        
+        <div class="controls">
+            <button id="send-wood">Отправить за деревом (1)</button>
+            <button id="send-food">Отправить за едой (1)</button>
+            <button id="upgrade-unit">Улучшить юнита (50 дерева)</button>
+        </div>
+        
+        <!-- Юниты будут добавляться динамически -->
     </div>
 
     <script>
-        // Получаем элементы DOM
-        const canvas = document.getElementById('gameCanvas');
-        const ctx = canvas.getContext('2d');
-        const woodCountElement = document.getElementById('woodCount');
-        const foodCountElement = document.getElementById('foodCount');
-        const ballCountElement = document.getElementById('ballCount');
-        const addBallButton = document.getElementById('addBall');
-        const selectedBallInfo = document.getElementById('selectedBallInfo');
-        const ballLevelElement = document.getElementById('ballLevel');
-        const ballCapacityElement = document.getElementById('ballCapacity');
-        const ballSpeedElement = document.getElementById('ballSpeed');
-        const ballConsumptionElement = document.getElementById('ballConsumption');
-        const ballProgressElement = document.getElementById('ballProgress');
-        const upgradeBallButton = document.getElementById('upgradeBall');
-        const assignWoodButton = document.getElementById('assignWood');
-        const assignFarmButton = document.getElementById('assignFarm');
-        const moveBallButton = document.getElementById('moveBall');
-        
-        // Устанавливаем размер canvas
-        canvas.width = window.innerWidth;
-        canvas.height = window.innerHeight;
-        
-        // Ресурсы и состояние игры
-        let resources = {
-            wood: 100,
-            food: 50
-        };
-        
-        let buildings = {
-            house: { x: 50, y: 50, width: 100, height: 100 },
-            farm: { 
-                x: canvas.width - 200, 
-                y: canvas.height/2 - 100, 
-                width: 200, 
-                height: 200, 
-                ready: false, 
-                progress: 0,
-                workers: 0
-            },
-            forest: { 
-                x: canvas.width - 250, 
-                y: 50, 
-                width: 200, 
-                height: 200, 
-                trees: 10,
-                workers: 0
-            }
-        };
-        
-        let balls = [];
-        let selectedBall = null;
-        let isPaused = false;
-        let lastTime = 0;
-        
-        // Загрузка изображений
-        function loadImages() {
-            // Создаем изображения с базовыми данными для демонстрации
-            // В реальной игре здесь должны быть правильные пути к файлам
-            houseImg = new Image();
-            houseImg.src = 'basic_house.png';
-            
-            ballImg = new Image();
-            ballImg.src = 'red_guy.png';
-            
-            bgImg = new Image();
-            bgImg.src = 'bg_game.png';
-            
-            farmReadyImg = new Image();
-            farmReadyImg.src = 'ready_ground.png';
-            
-            farmNotReadyImg = new Image();
-            farmNotReadyImg.src = 'not_ready_ground.png';
-            
-            forestImg = new Image();
-            forestImg.src = 'forest.png';
-            
-            // Если изображения не загружаются, используем цветные прямоугольники
-            houseImg.onerror = function() {
-                houseImg = null;
+        document.addEventListener('DOMContentLoaded', function() {
+            // Игровые переменные
+            let resources = {
+                wood: 100,
+                food: 100
             };
             
-            ballImg.onerror = function() {
-                ballImg = null;
-            };
+            let units = [];
+            let unitIdCounter = 1;
+            const housePosition = { x: 400, y: 300 };
+            const forestPosition = { x: 200, y: 150 };
+            const groundPosition = { x: 200, y: 450 };
             
-            bgImg.onerror = function() {
-                bgImg = null;
-            };
-            
-            farmReadyImg.onerror = function() {
-                farmReadyImg = null;
-            };
-            
-            farmNotReadyImg.onerror = function() {
-                farmNotReadyImg = null;
-            };
-            
-            forestImg.onerror = function() {
-                forestImg = null;
-            };
-            
-            initGame();
-            requestAnimationFrame(gameLoop);
-        }
-        
-        // Класс для шариков
-        class Ball {
-            constructor() {
-                this.radius = 25;
-                this.x = buildings.house.x + buildings.house.width/2;
-                this.y = buildings.house.y + buildings.house.height/2;
-                this.speedX = 0;
-                this.speedY = 0;
-                this.targetX = null;
-                this.targetY = null;
-                this.jumpPhase = Math.random() * Math.PI * 2;
-                this.jumpHeight = 3;
-                this.jumpSpeed = 0.08;
-                this.baseY = this.y;
-                this.level = 1;
-                this.capacity = 100;
-                this.speedMultiplier = 1;
-                this.foodConsumption = 1;
-                this.resource = null;
-                this.resourceAmount = 0;
-                this.workTarget = null;
-                this.workType = null;
-                this.isWorking = false;
-                this.workProgress = 0;
-                this.id = Math.random().toString(36).substring(7);
+            // Создаем изначальных юнитов
+            for (let i = 0; i < 3; i++) {
+                createUnit();
             }
             
-            update(deltaTime) {
-                // Движение к цели
-                if (this.targetX !== null && this.targetY !== null) {
-                    const dx = this.targetX - this.x;
-                    const dy = this.targetY - this.y;
-                    const distance = Math.sqrt(dx * dx + dy * dy);
-                    
-                    if (distance > 5) {
-                        this.speedX = (dx / distance) * 2 * this.speedMultiplier;
-                        this.speedY = (dy / distance) * 2 * this.speedMultiplier;
-                    } else {
-                        this.speedX = 0;
-                        this.speedY = 0;
-                        this.targetX = null;
-                        this.targetY = null;
+            // Обновляем счетчики
+            updateResourceCounters();
+            updateUnitCounters();
+            
+            // Функция создания юнита
+            function createUnit() {
+                const unit = {
+                    id: unitIdCounter++,
+                    x: housePosition.x + 20 + Math.random() * 60,
+                    y: housePosition.y + 20 + Math.random() * 60,
+                    task: null,
+                    level: 1,
+                    foodConsumption: 0.1,
+                    capacity: 100,
+                    carrying: 0,
+                    target: null,
+                    element: null
+                };
+                
+                units.push(unit);
+                
+                // Создаем DOM элемент для юнита
+                const unitElement = document.createElement('div');
+                unitElement.className = 'unit';
+                unitElement.id = `unit-${unit.id}`;
+                unitElement.style.left = `${unit.x}px`;
+                unitElement.style.top = `${unit.y}px`;
+                document.getElementById('game-container').appendChild(unitElement);
+                
+                unit.element = unitElement;
+                return unit;
+            }
+            
+            // Функция обновления счетчиков ресурсов
+            function updateResourceCounters() {
+                document.getElementById('wood-count').textContent = Math.floor(resources.wood);
+                document.getElementById('food-count').textContent = Math.floor(resources.food);
+            }
+            
+            // Функция обновления счетчиков юнитов
+            function updateUnitCounters() {
+                const freeUnits = units.filter(u => u.task === null).length;
+                document.getElementById('unit-count').textContent = units.length;
+                document.getElementById('free-unit-count').textContent = freeUnits;
+                
+                // Активируем/деактивируем кнопки в зависимости от доступных юнитов
+                document.getElementById('send-wood').disabled = freeUnits === 0;
+                document.getElementById('send-food').disabled = freeUnits === 0;
+                document.getElementById('upgrade-unit').disabled = resources.wood < 50 || freeUnits === 0;
+            }
+            
+            // Функция отправки юнита за деревом
+            document.getElementById('send-wood').addEventListener('click', function() {
+                const freeUnit = units.find(u => u.task === null);
+                if (freeUnit) {
+                    freeUnit.task = 'gathering_wood';
+                    freeUnit.target = { ...forestPosition };
+                    moveUnitToTarget(freeUnit);
+                    updateUnitCounters();
+                }
+            });
+            
+            // Функция отправки юнита за едой
+            document.getElementById('send-food').addEventListener('click', function() {
+                const freeUnit = units.find(u => u.task === null);
+                if (freeUnit) {
+                    freeUnit.task = 'gathering_food';
+                    freeUnit.target = { ...groundPosition };
+                    moveUnitToTarget(freeUnit);
+                    updateUnitCounters();
+                }
+            });
+            
+            // Функция улучшения юнита
+            document.getElementById('upgrade-unit').addEventListener('click', function() {
+                if (resources.wood >= 50) {
+                    const freeUnit = units.find(u => u.task === null);
+                    if (freeUnit) {
+                        resources.wood -= 50;
+                        freeUnit.level += 1;
+                        freeUnit.capacity = 100 * freeUnit.level;
+                        freeUnit.foodConsumption = 0.1 * freeUnit.level;
+                        updateResourceCounters();
+                        alert(`Юнит улучшен до уровня ${freeUnit.level}!`);
+                    }
+                }
+            });
+            
+            // Функция перемещения юнита к цели
+            function moveUnitToTarget(unit) {
+                const element = unit.element;
+                const dx = unit.target.x - unit.x;
+                const dy = unit.target.y - unit.y;
+                const distance = Math.sqrt(dx * dx + dy * dy);
+                
+                if (distance < 5) {
+                    // Юнит достиг цели
+                    if (unit.task === 'gathering_wood') {
+                        // Начинаем собирать дерево
+                        unit.carrying = 0;
+                        const gatherTime = 3000 / unit.level; // Время сбора зависит от уровня
                         
-                        // Если достигли рабочего места, начинаем работу
-                        if (this.workTarget) {
-                            this.isWorking = true;
-                        }
+                        setTimeout(() => {
+                            unit.carrying = unit.capacity;
+                            unit.task = 'returning_wood';
+                            unit.target = { ...housePosition };
+                            moveUnitToTarget(unit);
+                        }, gatherTime);
+                    } 
+                    else if (unit.task === 'gathering_food') {
+                        // Начинаем собирать еду
+                        unit.carrying = 0;
+                        const growTime = 5000 / unit.level; // Время выращивания зависит от уровня
+                        
+                        // Меняем текстуру грядки на "готова"
+                        document.querySelector('.ground').classList.add('ready');
+                        
+                        setTimeout(() => {
+                            unit.carrying = unit.capacity;
+                            unit.task = 'returning_food';
+                            unit.target = { ...housePosition };
+                            
+                            // Возвращаем текстуру грядки на "не готова"
+                            document.querySelector('.ground').classList.remove('ready');
+                            
+                            moveUnitToTarget(unit);
+                        }, growTime);
                     }
-                }
-                
-                // Обновление позиции
-                this.x += this.speedX;
-                this.baseY += this.speedY;
-                
-                // Анимация прыжка
-                this.jumpPhase += this.jumpSpeed;
-                this.y = this.baseY + Math.sin(this.jumpPhase) * this.jumpHeight;
-                
-                // Работа на ферме
-                if (this.isWorking && this.workType === 'farm') {
-                    this.workProgress += deltaTime / 1000;
-                    
-                    if (this.workProgress >= 5) { // 5 секунд на сбор урожая
-                        this.workProgress = 0;
-                        this.resource = 'food';
-                        this.resourceAmount = this.capacity;
-                        buildings.farm.ready = false;
-                        buildings.farm.progress = 0;
-                        this.isWorking = false;
-                        this.workTarget = 'house'; // Возвращаемся домой
-                        this.setTarget(buildings.house.x + buildings.house.width/2, buildings.house.y + buildings.house.height/2);
+                    else if (unit.task === 'returning_wood') {
+                        // Возвращаем дерево домой
+                        resources.wood += unit.carrying;
+                        unit.carrying = 0;
+                        unit.task = null;
+                        unit.target = null;
+                        updateResourceCounters();
+                        updateUnitCounters();
                     }
-                }
-                
-                // Работа в лесу
-                if (this.isWorking && this.workType === 'wood') {
-                    this.workProgress += deltaTime / 1000;
-                    
-                    if (this.workProgress >= 3) { // 3 секунды на рубку дерева
-                        this.workProgress = 0;
-                        this.resource = 'wood';
-                        this.resourceAmount = Math.min(this.capacity, 20); // Макс 20 дерева за раз
-                        buildings.forest.trees = Math.max(0, buildings.forest.trees - 1);
-                        this.isWorking = false;
-                        this.workTarget = 'house'; // Возвращаемся домой
-                        this.setTarget(buildings.house.x + buildings.house.width/2, buildings.house.y + buildings.house.height/2);
+                    else if (unit.task === 'returning_food') {
+                        // Возвращаем еду домой
+                        resources.food += unit.carrying;
+                        unit.carrying = 0;
+                        unit.task = null;
+                        unit.target = null;
+                        updateResourceCounters();
+                        updateUnitCounters();
                     }
+                    return;
                 }
                 
-                // Если вернулись домой с ресурсами
-                if (this.workTarget === 'house' && this.resourceAmount > 0 && 
-                    this.distanceTo(buildings.house.x + buildings.house.width/2, buildings.house.y + buildings.house.height/2) < 30) {
-                    resources[this.resource] += this.resourceAmount;
-                    this.resourceAmount = 0;
-                    this.resource = null;
-                    updateResources();
-                    
-                    // Возвращаемся к работе, если она была назначена
-                    if (this.workType) {
-                        if (this.workType === 'farm') {
-                            this.workTarget = 'farm';
-                            this.setTarget(buildings.farm.x + buildings.farm.width/2, buildings.farm.y + buildings.farm.height/2);
-                        } else if (this.workType === 'wood') {
-                            this.workTarget = 'forest';
-                            this.setTarget(buildings.forest.x + buildings.forest.width/2, buildings.forest.y + buildings.forest.height/2);
-                        }
-                    }
-                }
+                // Продолжаем движение
+                const speed = 2;
+                unit.x += (dx / distance) * speed;
+                unit.y += (dy / distance) * speed;
                 
-                // Обновление прогресса для отображения
-                if (this.isWorking) {
-                    let progressPercent = 0;
-                    if (this.workType === 'farm') {
-                        progressPercent = (this.workProgress / 5) * 100;
-                    } else if (this.workType === 'wood') {
-                        progressPercent = (this.workProgress / 3) * 100;
-                    }
-                    if (this === selectedBall) {
-                        ballProgressElement.style.width = progressPercent + '%';
-                    }
-                } else if (this === selectedBall) {
-                    ballProgressElement.style.width = '0%';
-                }
+                element.style.left = `${unit.x}px`;
+                element.style.top = `${unit.y}px`;
+                
+                requestAnimationFrame(() => moveUnitToTarget(unit));
             }
             
-            setTarget(x, y) {
-                this.targetX = x;
-                this.targetY = y;
-                this.isWorking = false;
-            }
-            
-            distanceTo(x, y) {
-                const dx = this.x - x;
-                const dy = this.y - y;
-                return Math.sqrt(dx * dx + dy * dy);
-            }
-            
-            draw() {
-                let scale = 1.0 + 0.1 * Math.sin(this.jumpPhase);
-                let offsetY = 0;
+            // Потребление еды юнитами
+            setInterval(() => {
+                let totalConsumption = 0;
                 
-                const size = this.radius * 2 * scale;
+                units.forEach(unit => {
+                    totalConsumption += unit.foodConsumption;
+                });
                 
-                // Рисуем шарик
-                if (ballImg) {
-                    ctx.drawImage(
-                        ballImg, 
-                        this.x - size/2, 
-                        this.y - size/2 + offsetY, 
-                        size, 
-                        size
-                    );
-                } else {
-                    // Запасной вариант, если изображение не загружено
-                    ctx.fillStyle = '#e74c3c';
-                    ctx.beginPath();
-                    ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
-                    ctx.fill();
-                    
-                    ctx.fillStyle = '#c0392b';
-                    ctx.beginPath();
-                    ctx.arc(this.x - 5, this.y - 5, 5, 0, Math.PI * 2);
-                    ctx.arc(this.x + 5, this.y - 5, 5, 0, Math.PI * 2);
-                    ctx.fill();
+                resources.food -= totalConsumption;
+                
+                if (resources.food < 0) {
+                    resources.food = 0;
+                    // Здесь можно добавить логику голодания юнитов
                 }
                 
-                // Отображение уровня шарика
-                ctx.fillStyle = '#ffffff';
-                ctx.font = '14px Arial';
-                ctx.textAlign = 'center';
-                ctx.fillText(this.level.toString(), this.x, this.y + 5);
-                
-                // Отображение ресурсов, если есть
-                if (this.resourceAmount > 0) {
-                    ctx.fillStyle = this.resource === 'wood' ? '#8B4513' : '#FFD700';
-                    ctx.fillRect(this.x - 20, this.y - 40, 40 * (this.resourceAmount / this.capacity), 5);
-                }
-                
-                // Подсветка выбранного шарика
-                if (this === selectedBall) {
-                    ctx.strokeStyle = '#f1c40f';
-                    ctx.lineWidth = 2;
-                    ctx.beginPath();
-                    ctx.arc(this.x, this.y, this.radius + 3, 0, Math.PI * 2);
-                    ctx.stroke();
-                }
-            }
-            
-            upgrade() {
-                this.level++;
-                this.capacity += 20;
-                this.speedMultiplier += 0.2;
-                this.foodConsumption += 0.5;
-                resources.food -= 25;
-                updateResources();
-                updateSelectedBallInfo();
-            }
-            
-            assignWork(type) {
-                this.workType = type;
-                
-                if (type === 'wood') {
-                    this.workTarget = 'forest';
-                    this.setTarget(buildings.forest.x + buildings.forest.width/2, buildings.forest.y + buildings.forest.height/2);
-                    buildings.forest.workers++;
-                } else if (type === 'farm') {
-                    this.workTarget = 'farm';
-                    this.setTarget(buildings.farm.x + buildings.farm.width/2, buildings.farm.y + buildings.farm.height/2);
-                    buildings.farm.workers++;
-                }
-            }
-        }
-        
-        // Инициализация игры
-        function initGame() {
-            // Создаем начальные шарики
-            for (let i = 0; i < 5; i++) {
-                balls.push(new Ball());
-            }
-            
-            // Обработчик клика по canvas
-            canvas.addEventListener('click', (e) => {
-                if (isPaused) return;
-                
-                const rect = canvas.getBoundingClientRect();
-                const x = e.clientX - rect.left;
-                const y = e.clientY - rect.top;
-                
-                // Проверяем, не кликнули ли по UI
-                if (x < 300 && y < 400) return;
-                
-                // Проверяем, кликнули ли по шарику
-                let clickedOnBall = false;
-                for (let i = balls.length - 1; i >= 0; i--) {
-                    const ball = balls[i];
-                    const dx = ball.x - x;
-                    const dy = ball.y - y;
-                    const distance = Math.sqrt(dx * dx + dy * dy);
-                    
-                    if (distance < ball.radius) {
-                        selectBall(ball);
-                        clickedOnBall = true;
-                        break;
-                    }
-                }
-                
-                // Если кликнули не по шарику, но есть выбранный шарик - перемещаем его
-                if (!clickedOnBall && selectedBall) {
-                    selectedBall.setTarget(x, y);
-                    selectedBall.workType = null;
-                    selectedBall.workTarget = null;
-                    selectedBall.isWorking = false;
-                    
-                    // Убираем из счетчиков рабочих
-                    if (selectedBall.workType === 'wood') {
-                        buildings.forest.workers--;
-                    } else if (selectedBall.workType === 'farm') {
-                        buildings.farm.workers--;
-                    }
-                }
-            });
-            
-            // Кнопка добавления шарика
-            addBallButton.addEventListener('click', () => {
-                if (resources.food >= 50) {
-                    const newBall = new Ball();
-                    balls.push(newBall);
-                    resources.food -= 50;
-                    updateResources();
-                    updateBallCount();
-                }
-            });
-            
-            // Кнопка улучшения шарика
-            upgradeBallButton.addEventListener('click', () => {
-                if (selectedBall && resources.food >= 25) {
-                    selectedBall.upgrade();
-                }
-            });
-            
-            // Кнопки назначения работы
-            assignWoodButton.addEventListener('click', () => {
-                if (selectedBall) {
-                    // Убираем из предыдущего места работы
-                    if (selectedBall.workType === 'farm') {
-                        buildings.farm.workers--;
-                    }
-                    
-                    selectedBall.assignWork('wood');
-                    updateSelectedBallInfo();
-                }
-            });
-            
-            assignFarmButton.addEventListener('click', () => {
-                if (selectedBall) {
-                    // Убираем из предыдущего места работы
-                    if (selectedBall.workType === 'wood') {
-                        buildings.forest.workers--;
-                    }
-                    
-                    selectedBall.assignWork('farm');
-                    updateSelectedBallInfo();
-                }
-            });
-            
-            // Кнопка перемещения
-            moveBallButton.addEventListener('click', () => {
-                if (selectedBall) {
-                    selectedBall.workType = null;
-                    
-                    // Убираем из счетчиков рабочих
-                    if (selectedBall.workTarget === 'forest') {
-                        buildings.forest.workers--;
-                    } else if (selectedBall.workTarget === 'farm') {
-                        buildings.farm.workers--;
-                    }
-                    
-                    selectedBall.workTarget = null;
-                    selectedBall.isWorking = false;
-                    updateSelectedBallInfo();
-                }
-            });
-            
-            // Обработчик изменения размера окна
-            window.addEventListener('resize', () => {
-                canvas.width = window.innerWidth;
-                canvas.height = window.innerHeight;
-                // Обновляем позиции зданий
-                buildings.farm.x = canvas.width - 200;
-                buildings.forest.x = canvas.width - 250;
-            });
-            
-            updateResources();
-            updateBallCount();
-        }
-        
-        // Обновление счетчиков ресурсов
-        function updateResources() {
-            woodCountElement.textContent = resources.wood;
-            foodCountElement.textContent = resources.food;
-            
-            // Активируем кнопку добавления шарика, если достаточно еды
-            addBallButton.disabled = resources.food < 50;
-        }
-        
-        // Обновление счетчика шариков
-        function updateBallCount() {
-            ballCountElement.textContent = balls.length;
-        }
-        
-        // Выбор шарика
-        function selectBall(ball) {
-            selectedBall = ball;
-            selectedBallInfo.style.display = 'block';
-            updateSelectedBallInfo();
-        }
-        
-        // Обновление информации о выбранном шарике
-        function updateSelectedBallInfo() {
-            if (!selectedBall) return;
-            
-            ballLevelElement.textContent = selectedBall.level;
-            ballCapacityElement.textContent = selectedBall.capacity;
-            ballSpeedElement.textContent = selectedBall.speedMultiplier.toFixed(1);
-            ballConsumptionElement.textContent = selectedBall.foodConsumption.toFixed(1);
-            
-            // Активируем кнопку улучшения, если достаточно еды
-            upgradeBallButton.disabled = resources.food < 25;
-            
-            // Показываем соответствующие кнопки в зависимости от типа работы
-            if (selectedBall.workType === 'wood') {
-                assignWoodButton.textContent = 'Перестать рубить';
-                assignFarmButton.textContent = 'Работать на ферме';
-            } else if (selectedBall.workType === 'farm') {
-                assignWoodButton.textContent = 'Рубить дерево';
-                assignFarmButton.textContent = 'Перестать работать';
-            } else {
-                assignWoodButton.textContent = 'Рубить дерево';
-                assignFarmButton.textContent = 'Работать на ферме';
-            }
-        }
-        
-        // Обновление состояния фермы
-        function updateFarm(deltaTime) {
-            if (!buildings.farm.ready) {
-                buildings.farm.progress += deltaTime / 1000 / 60; // 1 минута для созревания
-                
-                if (buildings.farm.progress >= 1) {
-                    buildings.farm.ready = true;
-                }
-            }
-        }
-        
-        // Потребление еды шариками
-        function consumeFood(deltaTime) {
-            const totalConsumption = balls.reduce((sum, ball) => sum + ball.foodConsumption, 0) * (deltaTime / 1000 / 60);
-            resources.food = Math.max(0, resources.food - totalConsumption);
-            updateResources();
-        }
-        
-        // Рисуем здания
-        function drawBuildings() {
-            // Рисуем дом
-            if (houseImg) {
-                ctx.drawImage(houseImg, buildings.house.x, buildings.house.y, buildings.house.width, buildings.house.height);
-            } else {
-                // Запасной вариант, если изображение не загружено
-                ctx.fillStyle = '#3498db';
-                ctx.fillRect(buildings.house.x, buildings.house.y, buildings.house.width, buildings.house.height);
-                ctx.fillStyle = '#f1c40f';
-                ctx.fillRect(buildings.house.x + 30, buildings.house.y + 50, 40, 50);
-            }
-            
-            // Рисуем ферму
-            const farmImg = buildings.farm.ready ? farmReadyImg : farmNotReadyImg;
-            if (farmImg) {
-                ctx.drawImage(farmImg, buildings.farm.x, buildings.farm.y, buildings.farm.width, buildings.farm.height);
-            } else {
-                // Запасной вариант, если изображение не загружено
-                ctx.fillStyle = buildings.farm.ready ? '#27ae60' : '#e67e22';
-                ctx.fillRect(buildings.farm.x, buildings.farm.y, buildings.farm.width, buildings.farm.height);
-                
-                // Прогресс созревания
-                ctx.fillStyle = 'rgba(0, 0, 0, 0.3)';
-                ctx.fillRect(buildings.farm.x, buildings.farm.y, buildings.farm.width, 20);
-                ctx.fillStyle = '#3498db';
-                ctx.fillRect(buildings.farm.x, buildings.farm.y, buildings.farm.width * buildings.farm.progress, 20);
-            }
-            
-            // Рисуем лес
-            if (forestImg) {
-                ctx.drawImage(forestImg, buildings.forest.x, buildings.forest.y, buildings.forest.width, buildings.forest.height);
-            } else {
-                // Запасной вариант, если изображение не загружено
-                ctx.fillStyle = '#2ecc71';
-                ctx.fillRect(buildings.forest.x, buildings.forest.y, buildings.forest.width, buildings.forest.height);
-                
-                // Деревья
-                ctx.fillStyle = '#27ae60';
-                for (let i = 0; i < buildings.forest.trees; i++) {
-                    const x = buildings.forest.x + 20 + (i % 5) * 40;
-                    const y = buildings.forest.y + 30 + Math.floor(i / 5) * 50;
-                    ctx.beginPath();
-                    ctx.moveTo(x, y);
-                    ctx.lineTo(x - 15, y + 30);
-                    ctx.lineTo(x + 15, y + 30);
-                    ctx.closePath();
-                    ctx.fill();
-                }
-            }
-            
-            // Отображаем информацию о зданиях
-            ctx.fillStyle = 'rgba(0, 0, 0, 0.7)';
-            ctx.font = '16px Arial';
-            
-            // Ферма
-            ctx.fillText(`Ферма: ${buildings.farm.workers} рабочих`, buildings.farm.x + 10, buildings.farm.y + 20);
-            if (buildings.farm.ready) {
-                ctx.fillStyle = '#f1c40f';
-                ctx.fillText('Урожай готов!', buildings.farm.x + 10, buildings.farm.y + 40);
-            }
-            
-            // Лес
-            ctx.fillStyle = 'rgba(0, 0, 0, 0.7)';
-            ctx.fillText(`Деревьев: ${buildings.forest.trees}`, buildings.forest.x + 10, buildings.forest.y + 20);
-            ctx.fillText(`Рабочих: ${buildings.forest.workers}`, buildings.forest.x + 10, buildings.forest.y + 40);
-        }
-        
-        // Основной игровой цикл
-        function gameLoop(timestamp) {
-            if (!lastTime) lastTime = timestamp;
-            const deltaTime = timestamp - lastTime;
-            lastTime = timestamp;
-            
-            if (isPaused) return;
-            
-            // Очищаем canvas
-            if (bgImg) {
-                ctx.drawImage(bgImg, 0, 0, canvas.width, canvas.height);
-            } else {
-                // Запасной фон, если изображение не загружено
-                ctx.fillStyle = '#2c3e50';
-                ctx.fillRect(0, 0, canvas.width, canvas.height);
-                
-                // Рисуем простой узор для фона
-                ctx.fillStyle = 'rgba(41, 128, 185, 0.1)';
-                for (let i = 0; i < 100; i++) {
-                    ctx.beginPath();
-                    ctx.arc(
-                        Math.random() * canvas.width,
-                        Math.random() * canvas.height,
-                        Math.random() * 3 + 1,
-                        0,
-                        Math.PI * 2
-                    );
-                    ctx.fill();
-                }
-            }
-            
-            // Рисуем здания
-            drawBuildings();
-            
-            // Обновляем и рисуем шарики
-            balls.forEach(ball => {
-                ball.update(deltaTime);
-                ball.draw();
-            });
-            
-            // Обновляем состояние фермы
-            updateFarm(deltaTime);
-            
-            // Потребление еды
-            consumeFood(deltaTime);
-            
-            // Удаляем шарики, если еды недостаточно (голод)
-            if (resources.food <= 0 && balls.length > 0) {
-                // Находим шарик с самым высоким потреблением
-                let highestConsumptionIndex = 0;
-                for (let i = 1; i < balls.length; i++) {
-                    if (balls[i].foodConsumption > balls[highestConsumptionIndex].foodConsumption) {
-                        highestConsumptionIndex = i;
-                    }
-                }
-                
-                // Удаляем его
-                balls.splice(highestConsumptionIndex, 1);
-                updateBallCount();
-                resources.food = 0;
-                
-                // Если удалили выбранный шарик, сбрасываем выбор
-                if (selectedBall && !balls.includes(selectedBall)) {
-                    selectedBall = null;
-                    selectedBallInfo.style.display = 'none';
-                }
-                
-                updateResources();
-            }
-            
-            requestAnimationFrame(gameLoop);
-        }
-        
-        // Запускаем загрузку изображений
-        loadImages();
+                updateResourceCounters();
+            }, 1000);
+        });
     </script>
 </body>
 </html>
