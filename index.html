@@ -9,22 +9,25 @@
             margin: 0;
             padding: 0;
             overflow: hidden;
-            font-family: Arial, sans-serif;
+            font-family: 'Arial', sans-serif;
             background-color: #2c3e50;
             color: #ecf0f1;
         }
         canvas {
             display: block;
+            background: #2c3e50;
         }
         .controls {
             position: absolute;
             top: 10px;
             left: 10px;
-            background: rgba(44, 62, 80, 0.8);
+            background: rgba(44, 62, 80, 0.85);
             padding: 15px;
             border-radius: 8px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.5);
             width: 250px;
+            backdrop-filter: blur(5px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
         }
         .resources {
             margin-bottom: 15px;
@@ -35,24 +38,30 @@
             display: flex;
             justify-content: space-between;
             margin: 5px 0;
+            padding: 3px 5px;
+            border-radius: 3px;
+            background: rgba(0, 0, 0, 0.2);
         }
         button {
             padding: 8px 15px;
-            margin: 5px;
+            margin: 5px 0;
             border: none;
             border-radius: 4px;
             background: #3498db;
             color: white;
             cursor: pointer;
             font-size: 14px;
-            transition: background 0.3s;
+            transition: all 0.3s;
+            width: 100%;
         }
         button:hover {
             background: #2980b9;
+            transform: translateY(-2px);
         }
         button:disabled {
             background: #7f8c8d;
             cursor: not-allowed;
+            transform: none;
         }
         .selected-ball-info {
             margin-top: 15px;
@@ -73,9 +82,34 @@
         .work-btn:hover {
             background: #d35400;
         }
-        .building {
-            position: absolute;
-            cursor: pointer;
+        .move-btn {
+            background: #9b59b6;
+        }
+        .move-btn:hover {
+            background: #8e44ad;
+        }
+        h2 {
+            margin-top: 0;
+            text-align: center;
+            color: #f1c40f;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+        }
+        h3 {
+            margin: 5px 0;
+            color: #f1c40f;
+        }
+        .progress-bar {
+            height: 8px;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 4px;
+            margin: 5px 0;
+            overflow: hidden;
+        }
+        .progress-fill {
+            height: 100%;
+            background: #3498db;
+            border-radius: 4px;
+            transition: width 0.3s;
         }
         .building-info {
             position: absolute;
@@ -85,13 +119,22 @@
             display: none;
             max-width: 200px;
             box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        .ball-indicator {
+            position: absolute;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: #e74c3c;
+            box-shadow: 0 0 5px #e74c3c;
         }
     </style>
 </head>
 <body>
     <canvas id="gameCanvas"></canvas>
     <div class="controls">
-        <h2>Поселение шариков</h2>
+        <h2>Шариковое поселение</h2>
         <div class="resources">
             <div class="resource">Дерево: <span id="woodCount">100</span></div>
             <div class="resource">Еда: <span id="foodCount">50</span></div>
@@ -104,10 +147,13 @@
             <div>Грузоподъемность: <span id="ballCapacity">100</span></div>
             <div>Скорость: <span id="ballSpeed">1</span></div>
             <div>Потребление: <span id="ballConsumption">1</span> ед/мин</div>
+            <div class="progress-bar">
+                <div id="ballProgress" class="progress-fill" style="width: 0%"></div>
+            </div>
             <button class="upgrade-btn" id="upgradeBall">Улучшить (25 еды)</button>
             <button class="work-btn" id="assignWood">Рубить дерево</button>
             <button class="work-btn" id="assignFarm">Работать на ферме</button>
-            <button id="moveBall">Переместить</button>
+            <button class="move-btn" id="moveBall">Переместить</button>
         </div>
     </div>
 
@@ -124,6 +170,7 @@
         const ballCapacityElement = document.getElementById('ballCapacity');
         const ballSpeedElement = document.getElementById('ballSpeed');
         const ballConsumptionElement = document.getElementById('ballConsumption');
+        const ballProgressElement = document.getElementById('ballProgress');
         const upgradeBallButton = document.getElementById('upgradeBall');
         const assignWoodButton = document.getElementById('assignWood');
         const assignFarmButton = document.getElementById('assignFarm');
@@ -141,51 +188,79 @@
         
         let buildings = {
             house: { x: 50, y: 50, width: 100, height: 100 },
-            farm: { x: canvas.width - 200, y: canvas.height/2 - 100, width: 200, height: 200, ready: false, progress: 0 },
-            forest: { x: canvas.width - 250, y: 50, width: 200, height: 200, trees: 10 }
+            farm: { 
+                x: canvas.width - 200, 
+                y: canvas.height/2 - 100, 
+                width: 200, 
+                height: 200, 
+                ready: false, 
+                progress: 0,
+                workers: 0
+            },
+            forest: { 
+                x: canvas.width - 250, 
+                y: 50, 
+                width: 200, 
+                height: 200, 
+                trees: 10,
+                workers: 0
+            }
         };
         
         let balls = [];
         let selectedBall = null;
         let isPaused = false;
-        let houseImg, ballImg, bgImg, farmReadyImg, farmNotReadyImg, forestImg;
-        let imagesLoaded = 0;
-        const totalImages = 6;
         let lastTime = 0;
         
         // Загрузка изображений
         function loadImages() {
+            // Создаем изображения с базовыми данными для демонстрации
+            // В реальной игре здесь должны быть правильные пути к файлам
             houseImg = new Image();
             houseImg.src = 'basic_house.png';
-            houseImg.onload = imageLoaded;
             
             ballImg = new Image();
-            ballImg.src = 'reb_guy.png';
-            ballImg.onload = imageLoaded;
+            ballImg.src = 'red_guy.png';
             
             bgImg = new Image();
             bgImg.src = 'bg_game.png';
-            bgImg.onload = imageLoaded;
             
             farmReadyImg = new Image();
             farmReadyImg.src = 'ready_ground.png';
-            farmReadyImg.onload = imageLoaded;
             
             farmNotReadyImg = new Image();
             farmNotReadyImg.src = 'not_ready_ground.png';
-            farmNotReadyImg.onload = imageLoaded;
             
             forestImg = new Image();
             forestImg.src = 'forest.png';
-            forestImg.onload = imageLoaded;
-        }
-        
-        function imageLoaded() {
-            imagesLoaded++;
-            if (imagesLoaded === totalImages) {
-                initGame();
-                requestAnimationFrame(gameLoop);
-            }
+            
+            // Если изображения не загружаются, используем цветные прямоугольники
+            houseImg.onerror = function() {
+                houseImg = null;
+            };
+            
+            ballImg.onerror = function() {
+                ballImg = null;
+            };
+            
+            bgImg.onerror = function() {
+                bgImg = null;
+            };
+            
+            farmReadyImg.onerror = function() {
+                farmReadyImg = null;
+            };
+            
+            farmNotReadyImg.onerror = function() {
+                farmNotReadyImg = null;
+            };
+            
+            forestImg.onerror = function() {
+                forestImg = null;
+            };
+            
+            initGame();
+            requestAnimationFrame(gameLoop);
         }
         
         // Класс для шариков
@@ -296,6 +371,21 @@
                         }
                     }
                 }
+                
+                // Обновление прогресса для отображения
+                if (this.isWorking) {
+                    let progressPercent = 0;
+                    if (this.workType === 'farm') {
+                        progressPercent = (this.workProgress / 5) * 100;
+                    } else if (this.workType === 'wood') {
+                        progressPercent = (this.workProgress / 3) * 100;
+                    }
+                    if (this === selectedBall) {
+                        ballProgressElement.style.width = progressPercent + '%';
+                    }
+                } else if (this === selectedBall) {
+                    ballProgressElement.style.width = '0%';
+                }
             }
             
             setTarget(x, y) {
@@ -315,13 +405,29 @@
                 let offsetY = 0;
                 
                 const size = this.radius * 2 * scale;
-                ctx.drawImage(
-                    ballImg, 
-                    this.x - size/2, 
-                    this.y - size/2 + offsetY, 
-                    size, 
-                    size
-                );
+                
+                // Рисуем шарик
+                if (ballImg) {
+                    ctx.drawImage(
+                        ballImg, 
+                        this.x - size/2, 
+                        this.y - size/2 + offsetY, 
+                        size, 
+                        size
+                    );
+                } else {
+                    // Запасной вариант, если изображение не загружено
+                    ctx.fillStyle = '#e74c3c';
+                    ctx.beginPath();
+                    ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+                    ctx.fill();
+                    
+                    ctx.fillStyle = '#c0392b';
+                    ctx.beginPath();
+                    ctx.arc(this.x - 5, this.y - 5, 5, 0, Math.PI * 2);
+                    ctx.arc(this.x + 5, this.y - 5, 5, 0, Math.PI * 2);
+                    ctx.fill();
+                }
                 
                 // Отображение уровня шарика
                 ctx.fillStyle = '#ffffff';
@@ -333,6 +439,15 @@
                 if (this.resourceAmount > 0) {
                     ctx.fillStyle = this.resource === 'wood' ? '#8B4513' : '#FFD700';
                     ctx.fillRect(this.x - 20, this.y - 40, 40 * (this.resourceAmount / this.capacity), 5);
+                }
+                
+                // Подсветка выбранного шарика
+                if (this === selectedBall) {
+                    ctx.strokeStyle = '#f1c40f';
+                    ctx.lineWidth = 2;
+                    ctx.beginPath();
+                    ctx.arc(this.x, this.y, this.radius + 3, 0, Math.PI * 2);
+                    ctx.stroke();
                 }
             }
             
@@ -352,9 +467,11 @@
                 if (type === 'wood') {
                     this.workTarget = 'forest';
                     this.setTarget(buildings.forest.x + buildings.forest.width/2, buildings.forest.y + buildings.forest.height/2);
+                    buildings.forest.workers++;
                 } else if (type === 'farm') {
                     this.workTarget = 'farm';
                     this.setTarget(buildings.farm.x + buildings.farm.width/2, buildings.farm.y + buildings.farm.height/2);
+                    buildings.farm.workers++;
                 }
             }
         }
@@ -398,6 +515,13 @@
                     selectedBall.workType = null;
                     selectedBall.workTarget = null;
                     selectedBall.isWorking = false;
+                    
+                    // Убираем из счетчиков рабочих
+                    if (selectedBall.workType === 'wood') {
+                        buildings.forest.workers--;
+                    } else if (selectedBall.workType === 'farm') {
+                        buildings.farm.workers--;
+                    }
                 }
             });
             
@@ -422,13 +546,25 @@
             // Кнопки назначения работы
             assignWoodButton.addEventListener('click', () => {
                 if (selectedBall) {
+                    // Убираем из предыдущего места работы
+                    if (selectedBall.workType === 'farm') {
+                        buildings.farm.workers--;
+                    }
+                    
                     selectedBall.assignWork('wood');
+                    updateSelectedBallInfo();
                 }
             });
             
             assignFarmButton.addEventListener('click', () => {
                 if (selectedBall) {
+                    // Убираем из предыдущего места работы
+                    if (selectedBall.workType === 'wood') {
+                        buildings.forest.workers--;
+                    }
+                    
                     selectedBall.assignWork('farm');
+                    updateSelectedBallInfo();
                 }
             });
             
@@ -436,8 +572,17 @@
             moveBallButton.addEventListener('click', () => {
                 if (selectedBall) {
                     selectedBall.workType = null;
+                    
+                    // Убираем из счетчиков рабочих
+                    if (selectedBall.workTarget === 'forest') {
+                        buildings.forest.workers--;
+                    } else if (selectedBall.workTarget === 'farm') {
+                        buildings.farm.workers--;
+                    }
+                    
                     selectedBall.workTarget = null;
                     selectedBall.isWorking = false;
+                    updateSelectedBallInfo();
                 }
             });
             
@@ -486,6 +631,18 @@
             
             // Активируем кнопку улучшения, если достаточно еды
             upgradeBallButton.disabled = resources.food < 25;
+            
+            // Показываем соответствующие кнопки в зависимости от типа работы
+            if (selectedBall.workType === 'wood') {
+                assignWoodButton.textContent = 'Перестать рубить';
+                assignFarmButton.textContent = 'Работать на ферме';
+            } else if (selectedBall.workType === 'farm') {
+                assignWoodButton.textContent = 'Рубить дерево';
+                assignFarmButton.textContent = 'Перестать работать';
+            } else {
+                assignWoodButton.textContent = 'Рубить дерево';
+                assignFarmButton.textContent = 'Работать на ферме';
+            }
         }
         
         // Обновление состояния фермы
@@ -506,6 +663,74 @@
             updateResources();
         }
         
+        // Рисуем здания
+        function drawBuildings() {
+            // Рисуем дом
+            if (houseImg) {
+                ctx.drawImage(houseImg, buildings.house.x, buildings.house.y, buildings.house.width, buildings.house.height);
+            } else {
+                // Запасной вариант, если изображение не загружено
+                ctx.fillStyle = '#3498db';
+                ctx.fillRect(buildings.house.x, buildings.house.y, buildings.house.width, buildings.house.height);
+                ctx.fillStyle = '#f1c40f';
+                ctx.fillRect(buildings.house.x + 30, buildings.house.y + 50, 40, 50);
+            }
+            
+            // Рисуем ферму
+            const farmImg = buildings.farm.ready ? farmReadyImg : farmNotReadyImg;
+            if (farmImg) {
+                ctx.drawImage(farmImg, buildings.farm.x, buildings.farm.y, buildings.farm.width, buildings.farm.height);
+            } else {
+                // Запасной вариант, если изображение не загружено
+                ctx.fillStyle = buildings.farm.ready ? '#27ae60' : '#e67e22';
+                ctx.fillRect(buildings.farm.x, buildings.farm.y, buildings.farm.width, buildings.farm.height);
+                
+                // Прогресс созревания
+                ctx.fillStyle = 'rgba(0, 0, 0, 0.3)';
+                ctx.fillRect(buildings.farm.x, buildings.farm.y, buildings.farm.width, 20);
+                ctx.fillStyle = '#3498db';
+                ctx.fillRect(buildings.farm.x, buildings.farm.y, buildings.farm.width * buildings.farm.progress, 20);
+            }
+            
+            // Рисуем лес
+            if (forestImg) {
+                ctx.drawImage(forestImg, buildings.forest.x, buildings.forest.y, buildings.forest.width, buildings.forest.height);
+            } else {
+                // Запасной вариант, если изображение не загружено
+                ctx.fillStyle = '#2ecc71';
+                ctx.fillRect(buildings.forest.x, buildings.forest.y, buildings.forest.width, buildings.forest.height);
+                
+                // Деревья
+                ctx.fillStyle = '#27ae60';
+                for (let i = 0; i < buildings.forest.trees; i++) {
+                    const x = buildings.forest.x + 20 + (i % 5) * 40;
+                    const y = buildings.forest.y + 30 + Math.floor(i / 5) * 50;
+                    ctx.beginPath();
+                    ctx.moveTo(x, y);
+                    ctx.lineTo(x - 15, y + 30);
+                    ctx.lineTo(x + 15, y + 30);
+                    ctx.closePath();
+                    ctx.fill();
+                }
+            }
+            
+            // Отображаем информацию о зданиях
+            ctx.fillStyle = 'rgba(0, 0, 0, 0.7)';
+            ctx.font = '16px Arial';
+            
+            // Ферма
+            ctx.fillText(`Ферма: ${buildings.farm.workers} рабочих`, buildings.farm.x + 10, buildings.farm.y + 20);
+            if (buildings.farm.ready) {
+                ctx.fillStyle = '#f1c40f';
+                ctx.fillText('Урожай готов!', buildings.farm.x + 10, buildings.farm.y + 40);
+            }
+            
+            // Лес
+            ctx.fillStyle = 'rgba(0, 0, 0, 0.7)';
+            ctx.fillText(`Деревьев: ${buildings.forest.trees}`, buildings.forest.x + 10, buildings.forest.y + 20);
+            ctx.fillText(`Рабочих: ${buildings.forest.workers}`, buildings.forest.x + 10, buildings.forest.y + 40);
+        }
+        
         // Основной игровой цикл
         function gameLoop(timestamp) {
             if (!lastTime) lastTime = timestamp;
@@ -515,20 +740,30 @@
             if (isPaused) return;
             
             // Очищаем canvas
-            ctx.drawImage(bgImg, 0, 0, canvas.width, canvas.height);
+            if (bgImg) {
+                ctx.drawImage(bgImg, 0, 0, canvas.width, canvas.height);
+            } else {
+                // Запасной фон, если изображение не загружено
+                ctx.fillStyle = '#2c3e50';
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+                
+                // Рисуем простой узор для фона
+                ctx.fillStyle = 'rgba(41, 128, 185, 0.1)';
+                for (let i = 0; i < 100; i++) {
+                    ctx.beginPath();
+                    ctx.arc(
+                        Math.random() * canvas.width,
+                        Math.random() * canvas.height,
+                        Math.random() * 3 + 1,
+                        0,
+                        Math.PI * 2
+                    );
+                    ctx.fill();
+                }
+            }
             
             // Рисуем здания
-            ctx.drawImage(houseImg, buildings.house.x, buildings.house.y, buildings.house.width, buildings.house.height);
-            
-            // Рисуем ферму
-            const farmImg = buildings.farm.ready ? farmReadyImg : farmNotReadyImg;
-            ctx.drawImage(farmImg, buildings.farm.x, buildings.farm.y, buildings.farm.width, buildings.farm.height);
-            
-            // Рисуем лес
-            ctx.drawImage(forestImg, buildings.forest.x, buildings.forest.y, buildings.forest.width, buildings.forest.height);
-            ctx.fillStyle = 'rgba(0, 0, 0, 0.7)';
-            ctx.font = '16px Arial';
-            ctx.fillText(`Деревьев: ${buildings.forest.trees}`, buildings.forest.x + 10, buildings.forest.y + 20);
+            drawBuildings();
             
             // Обновляем и рисуем шарики
             balls.forEach(ball => {
@@ -543,13 +778,27 @@
             consumeFood(deltaTime);
             
             // Удаляем шарики, если еды недостаточно (голод)
-            if (resources.food <= 0) {
-                if (balls.length > 0) {
-                    balls.pop();
-                    updateBallCount();
-                    resources.food = 0;
-                    updateResources();
+            if (resources.food <= 0 && balls.length > 0) {
+                // Находим шарик с самым высоким потреблением
+                let highestConsumptionIndex = 0;
+                for (let i = 1; i < balls.length; i++) {
+                    if (balls[i].foodConsumption > balls[highestConsumptionIndex].foodConsumption) {
+                        highestConsumptionIndex = i;
+                    }
                 }
+                
+                // Удаляем его
+                balls.splice(highestConsumptionIndex, 1);
+                updateBallCount();
+                resources.food = 0;
+                
+                // Если удалили выбранный шарик, сбрасываем выбор
+                if (selectedBall && !balls.includes(selectedBall)) {
+                    selectedBall = null;
+                    selectedBallInfo.style.display = 'none';
+                }
+                
+                updateResources();
             }
             
             requestAnimationFrame(gameLoop);
