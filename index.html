@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Прыгающие шарики с границами</title>
+    <title>Прыгающие шарики</title>
     <style>
         body {
             margin: 0;
@@ -18,10 +18,9 @@
             position: absolute;
             top: 10px;
             left: 10px;
-            background: rgba(255, 255, 255, 0.9);
+            background: rgba(255, 255, 255, 0.7);
             padding: 10px;
             border-radius: 5px;
-            z-index: 10;
         }
         button {
             padding: 8px 15px;
@@ -36,15 +35,6 @@
         button:hover {
             background: #45a049;
         }
-        .debug {
-            position: absolute;
-            top: 10px;
-            right: 10px;
-            background: rgba(255, 255, 255, 0.9);
-            padding: 10px;
-            border-radius: 5px;
-            z-index: 10;
-        }
     </style>
 </head>
 <body>
@@ -54,11 +44,6 @@
         <button id="addBall">Добавить шарик</button>
         <button id="pauseBtn">Пауза</button>
     </div>
-    <div class="debug">
-        <label>
-            <input type="checkbox" id="showBoundaries"> Показать границы
-        </label>
-    </div>
 
     <script>
         // Получаем элементы DOM
@@ -67,7 +52,6 @@
         const ballCountElement = document.getElementById('ballCount');
         const addBallButton = document.getElementById('addBall');
         const pauseBtn = document.getElementById('pauseBtn');
-        const showBoundariesCheckbox = document.getElementById('showBoundaries');
         
         // Устанавливаем размер canvas
         canvas.width = window.innerWidth;
@@ -76,72 +60,31 @@
         // Переменные игры
         let balls = [];
         let isPaused = false;
-        let bgImg;
-        let showBoundaries = false;
-        
-        // Определяем границы вокруг деревьев (примерные координаты)
-        // Эти значения нужно настроить в зависимости от вашего фонового изображения
-        const treeBoundaries = [
-            // Левая группа деревьев
-            { x: canvas.width * 0.1, y: canvas.height * 0.2, width: canvas.width * 0.15, height: canvas.height * 0.6 },
-            // Правая группа деревьев
-            { x: canvas.width * 0.7, y: canvas.height * 0.1, width: canvas.width * 0.2, height: canvas.height * 0.7 },
-            // Центральные деревья
-            { x: canvas.width * 0.4, y: canvas.height * 0.3, width: canvas.width * 0.2, height: canvas.height * 0.4 }
-        ];
+        let houseImg, ballImg, bgImg;
+        let imagesLoaded = 0;
+        const totalImages = 3;
         
         // Загрузка изображений
         function loadImages() {
+            houseImg = new Image();
+            houseImg.src = 'https://i.pinimg.com/736x/83/a2/be/83a2beadde89316b0bd43c5a58d956f2.jpg';
+            houseImg.onload = imageLoaded;
+            
+            ballImg = new Image();
+            ballImg.src = 'https://i.pinimg.com/736x/6d/f0/bc/6df0bcb84b425f6cf2f9b8954f1b0916.jpg';
+            ballImg.onload = imageLoaded;
+            
             bgImg = new Image();
             bgImg.src = 'https://i.pinimg.com/736x/1e/46/cd/1e46cdfd6cc833eb7a41fc65a56f0453.jpg';
-            bgImg.onload = () => {
-                initGame();
-                requestAnimationFrame(gameLoop);
-            };
-            
-            bgImg.onerror = () => {
-                console.log('Ошибка загрузки фона, используем цветной фон');
-                initGame();
-                requestAnimationFrame(gameLoop);
-            };
+            bgImg.onload = imageLoaded;
         }
         
-        // Проверка столкновения с границами деревьев
-        function checkTreeCollision(x, y, radius) {
-            for (const boundary of treeBoundaries) {
-                // Проверяем, находится ли шарик внутри границы дерева
-                const closestX = Math.max(boundary.x, Math.min(x, boundary.x + boundary.width));
-                const closestY = Math.max(boundary.y, Math.min(y, boundary.y + boundary.height));
-                
-                const distanceX = x - closestX;
-                const distanceY = y - closestY;
-                
-                if ((distanceX * distanceX + distanceY * distanceY) < (radius * radius)) {
-                    return true;
-                }
+        function imageLoaded() {
+            imagesLoaded++;
+            if (imagesLoaded === totalImages) {
+                initGame();
+                requestAnimationFrame(gameLoop);
             }
-            return false;
-        }
-        
-        // Получение нормализованного направления от границы
-        function getBoundaryNormal(x, y, radius) {
-            for (const boundary of treeBoundaries) {
-                const closestX = Math.max(boundary.x, Math.min(x, boundary.x + boundary.width));
-                const closestY = Math.max(boundary.y, Math.min(y, boundary.y + boundary.height));
-                
-                const distanceX = x - closestX;
-                const distanceY = y - closestY;
-                const distance = Math.sqrt(distanceX * distanceX + distanceY * distanceY);
-                
-                if (distance < radius) {
-                    return {
-                        x: distanceX / distance,
-                        y: distanceY / distance,
-                        boundary: boundary
-                    };
-                }
-            }
-            return null;
         }
         
         // Класс для шариков
@@ -150,13 +93,6 @@
                 this.radius = 25;
                 this.x = Math.random() * (canvas.width - this.radius * 2) + this.radius;
                 this.y = Math.random() * (canvas.height - this.radius * 2) + this.radius;
-                
-                // Убедимся, что шарик не появляется внутри деревьев
-                while (checkTreeCollision(this.x, this.y, this.radius)) {
-                    this.x = Math.random() * (canvas.width - this.radius * 2) + this.radius;
-                    this.y = Math.random() * (canvas.height - this.radius * 2) + this.radius;
-                }
-                
                 this.speedX = (Math.random() - 0.5) * 1.5;
                 this.speedY = (Math.random() - 0.5) * 1.5;
                 this.jumpPhase = Math.random() * Math.PI * 2;
@@ -168,7 +104,6 @@
                 this.pauseDuration = 30;
                 this.wasAtMinSize = false;
                 this.minSizeThreshold = -0.95;
-                this.color = `hsl(${Math.random() * 360}, 70%, 60%)`;
             }
             
             update() {
@@ -180,35 +115,11 @@
                     return;
                 }
                 
-                // Сохраняем старые позиции для отката при столкновении
-                const oldX = this.x;
-                const oldY = this.y;
-                const oldBaseY = this.baseY;
-                
                 this.x += this.speedX;
                 this.baseY += this.speedY;
                 
                 this.jumpPhase += this.jumpSpeed;
                 this.y = this.baseY + Math.sin(this.jumpPhase) * this.jumpHeight;
-                
-                // Проверяем столкновение с деревьями
-                if (checkTreeCollision(this.x, this.y, this.radius)) {
-                    const normal = getBoundaryNormal(this.x, this.y, this.radius);
-                    if (normal) {
-                        // Отскакиваем от границы
-                        const dotProduct = this.speedX * normal.x + this.speedY * normal.y;
-                        this.speedX = this.speedX - 2 * dotProduct * normal.x;
-                        this.speedY = this.speedY - 2 * dotProduct * normal.y;
-                        
-                        // Возвращаем на предыдущую позицию
-                        this.x = oldX;
-                        this.y = oldY;
-                        this.baseY = oldBaseY;
-                        
-                        this.isPaused = true;
-                        this.pauseTimer = this.pauseDuration;
-                    }
-                }
                 
                 const isAtMinSize = Math.sin(this.jumpPhase) < this.minSizeThreshold;
                 
@@ -219,7 +130,6 @@
                 
                 this.wasAtMinSize = isAtMinSize;
                 
-                // Отскок от границ экрана
                 if (this.x <= this.radius || this.x >= canvas.width - this.radius) {
                     this.speedX = -this.speedX;
                     this.isPaused = true;
@@ -243,18 +153,13 @@
                 }
                 
                 const size = this.radius * 2 * scale;
-                
-                // Рисуем шарик
-                ctx.fillStyle = this.color;
-                ctx.beginPath();
-                ctx.arc(this.x, this.y + offsetY, size/2, 0, Math.PI * 2);
-                ctx.fill();
-                
-                // Добавляем блик для объема
-                ctx.fillStyle = 'rgba(255, 255, 255, 0.3)';
-                ctx.beginPath();
-                ctx.arc(this.x - size/6, this.y - size/6 + offsetY, size/4, 0, Math.PI * 2);
-                ctx.fill();
+                ctx.drawImage(
+                    ballImg, 
+                    this.x - size/2, 
+                    this.y - size/2 + offsetY, 
+                    size, 
+                    size
+                );
             }
         }
         
@@ -273,10 +178,13 @@
                 const x = e.clientX - rect.left;
                 const y = e.clientY - rect.top;
                 
-                // Проверяем, не кликнули ли по области деревьев
-                if (checkTreeCollision(x, y, 25)) {
-                    return; // Клик по деревьям - игнорируем
+                // Проверяем, не кликнули ли по дому или кнопкам
+                if (x > canvas.width/4 - 100 && x < canvas.width/4 + 100 && 
+                    y > canvas.height/2 - 100 && y < canvas.height/2 + 100) {
+                    return; // Клик по дому - игнорируем
                 }
+                
+                if (y < 60 && x < 200) return; // Клик по области счетчика
                 
                 const newBall = new Ball();
                 newBall.x = x;
@@ -302,11 +210,6 @@
                 }
             });
             
-            // Показать/скрыть границы
-            showBoundariesCheckbox.addEventListener('change', () => {
-                showBoundaries = showBoundariesCheckbox.checked;
-            });
-            
             // Обработчик изменения размера окна
             window.addEventListener('resize', () => {
                 canvas.width = window.innerWidth;
@@ -321,40 +224,22 @@
             ballCountElement.textContent = `Шариков: ${balls.length}`;
         }
         
-        // Отрисовка границ деревьев (для отладки)
-        function drawTreeBoundaries() {
-            if (!showBoundaries) return;
-            
-            ctx.strokeStyle = 'rgba(255, 0, 0, 0.5)';
-            ctx.fillStyle = 'rgba(255, 0, 0, 0.2)';
-            ctx.lineWidth = 2;
-            
-            for (const boundary of treeBoundaries) {
-                ctx.beginPath();
-                ctx.rect(boundary.x, boundary.y, boundary.width, boundary.height);
-                ctx.stroke();
-                ctx.fill();
-            }
-        }
-        
         // Основной игровой цикл
         function gameLoop() {
             if (isPaused) return;
             
             // Очищаем canvas
-            if (bgImg.complete && bgImg.naturalHeight !== 0) {
-                ctx.drawImage(bgImg, 0, 0, canvas.width, canvas.height);
-            } else {
-                // Запасной фон если изображение не загрузилось
-                ctx.fillStyle = '#87CEEB';
-                ctx.fillRect(0, 0, canvas.width, canvas.height);
-                
-                ctx.fillStyle = '#90EE90';
-                ctx.fillRect(0, canvas.height * 0.7, canvas.width, canvas.height * 0.3);
-            }
+            ctx.drawImage(bgImg, 0, 0, canvas.width, canvas.height);
             
-            // Рисуем границы деревьев (если включено)
-            drawTreeBoundaries();
+            // Рисуем дом
+            const houseSize = 200;
+            ctx.drawImage(
+                houseImg, 
+                canvas.width/4 - houseSize/2, 
+                canvas.height/2 - houseSize/2, 
+                houseSize, 
+                houseSize
+            );
             
             // Обновляем и рисуем шарики
             balls.forEach(ball => {
