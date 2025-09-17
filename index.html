@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Племя шариков</title>
+    <title>Шариковое поселение</title>
     <style>
         body {
             margin: 0;
@@ -24,7 +24,17 @@
             padding: 15px;
             border-radius: 8px;
             box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
-            max-width: 300px;
+            width: 250px;
+        }
+        .resources {
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        .resource {
+            display: flex;
+            justify-content: space-between;
+            margin: 5px 0;
         }
         button {
             padding: 8px 15px;
@@ -34,7 +44,7 @@
             background: #3498db;
             color: white;
             cursor: pointer;
-            font-size: 16px;
+            font-size: 14px;
             transition: background 0.3s;
         }
         button:hover {
@@ -44,87 +54,61 @@
             background: #7f8c8d;
             cursor: not-allowed;
         }
-        .resource {
-            margin: 8px 0;
-            display: flex;
-            justify-content: space-between;
-        }
-        .progress-bar {
-            height: 10px;
-            background: #34495e;
-            border-radius: 5px;
-            margin-top: 5px;
-            overflow: hidden;
-        }
-        .progress-fill {
-            height: 100%;
-            background: #3498db;
-            border-radius: 5px;
-            width: 0%;
-            transition: width 0.5s;
-        }
-        .ball-info {
+        .selected-ball-info {
             margin-top: 15px;
-            border-top: 1px solid #7f8c8d;
-            padding-top: 10px;
-        }
-        .task-buttons {
-            display: flex;
-            flex-wrap: wrap;
-        }
-        .upgrade-buttons {
-            margin-top: 10px;
-        }
-        .time-display {
-            text-align: center;
-            margin-bottom: 10px;
-            font-weight: bold;
-        }
-        .location {
-            position: absolute;
-            bottom: 20px;
-            right: 20px;
-            background: rgba(44, 62, 80, 0.8);
             padding: 10px;
-            border-radius: 8px;
-            text-align: center;
+            background: rgba(52, 152, 219, 0.2);
+            border-radius: 5px;
+            display: none;
+        }
+        .upgrade-btn {
+            background: #27ae60;
+        }
+        .upgrade-btn:hover {
+            background: #219653;
+        }
+        .work-btn {
+            background: #e67e22;
+        }
+        .work-btn:hover {
+            background: #d35400;
+        }
+        .building {
+            position: absolute;
+            cursor: pointer;
+        }
+        .building-info {
+            position: absolute;
+            background: rgba(44, 62, 80, 0.9);
+            padding: 10px;
+            border-radius: 5px;
+            display: none;
+            max-width: 200px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
         }
     </style>
 </head>
 <body>
     <canvas id="gameCanvas"></canvas>
     <div class="controls">
-        <div class="time-display" id="timeDisplay">День: 00:00</div>
-        <div class="resource">Дерево: <span id="woodCount">0</span></div>
-        <div class="resource">Еда: <span id="foodCount">0</span></div>
-        <div class="resource">Шариков: <span id="ballCount">0</span></div>
-        
-        <div class="progress-bar">
-            <div class="progress-fill" id="dayNightProgress"></div>
+        <h2>Поселение шариков</h2>
+        <div class="resources">
+            <div class="resource">Дерево: <span id="woodCount">100</span></div>
+            <div class="resource">Еда: <span id="foodCount">50</span></div>
+            <div class="resource">Шариков: <span id="ballCount">5</span></div>
         </div>
-        
-        <div class="ball-info">
-            <h3 id="selectedBallName">Выберите шарик</h3>
-            <div class="resource">Задание: <span id="ballTask">Нет</span></div>
-            <div class="resource">Вместимость: <span id="ballCapacity">100</span></div>
-            <div class="resource">Скорость: <span id="ballSpeed">1</span></div>
-            
-            <div class="task-buttons">
-                <button id="taskWood">Собирать дерево</button>
-                <button id="taskFood">Выращивать еду</button>
-                <button id="taskRest">Отдыхать</button>
-            </div>
-            
-            <div class="upgrade-buttons">
-                <button id="upgradeCapacity" data-cost="20">Улучшить вместимость (+20)</button>
-                <button id="upgradeSpeed" data-cost="30">Улучшить скорость (+0.2)</button>
-            </div>
+        <button id="addBall" disabled>Новый поселенец (50 еды)</button>
+        <div class="selected-ball-info" id="selectedBallInfo">
+            <h3>Выбранный шарик</h3>
+            <div>Уровень: <span id="ballLevel">1</span></div>
+            <div>Грузоподъемность: <span id="ballCapacity">100</span></div>
+            <div>Скорость: <span id="ballSpeed">1</span></div>
+            <div>Потребление: <span id="ballConsumption">1</span> ед/мин</div>
+            <button class="upgrade-btn" id="upgradeBall">Улучшить (25 еды)</button>
+            <button class="work-btn" id="assignWood">Рубить дерево</button>
+            <button class="work-btn" id="assignFarm">Работать на ферме</button>
+            <button id="moveBall">Переместить</button>
         </div>
-    </div>
-    
-    <div class="location">
-        <button id="goToForest">В лес</button>
-        <button id="goToFarm">На ферму</button>
     </div>
 
     <script>
@@ -134,85 +118,66 @@
         const woodCountElement = document.getElementById('woodCount');
         const foodCountElement = document.getElementById('foodCount');
         const ballCountElement = document.getElementById('ballCount');
-        const timeDisplayElement = document.getElementById('timeDisplay');
-        const dayNightProgressElement = document.getElementById('dayNightProgress');
-        const selectedBallNameElement = document.getElementById('selectedBallName');
-        const ballTaskElement = document.getElementById('ballTask');
+        const addBallButton = document.getElementById('addBall');
+        const selectedBallInfo = document.getElementById('selectedBallInfo');
+        const ballLevelElement = document.getElementById('ballLevel');
         const ballCapacityElement = document.getElementById('ballCapacity');
         const ballSpeedElement = document.getElementById('ballSpeed');
-        const taskWoodButton = document.getElementById('taskWood');
-        const taskFoodButton = document.getElementById('taskFood');
-        const taskRestButton = document.getElementById('taskRest');
-        const upgradeCapacityButton = document.getElementById('upgradeCapacity');
-        const upgradeSpeedButton = document.getElementById('upgradeSpeed');
-        const goToForestButton = document.getElementById('goToForest');
-        const goToFarmButton = document.getElementById('goToFarm');
-
+        const ballConsumptionElement = document.getElementById('ballConsumption');
+        const upgradeBallButton = document.getElementById('upgradeBall');
+        const assignWoodButton = document.getElementById('assignWood');
+        const assignFarmButton = document.getElementById('assignFarm');
+        const moveBallButton = document.getElementById('moveBall');
+        
         // Устанавливаем размер canvas
         canvas.width = window.innerWidth;
         canvas.height = window.innerHeight;
         
-        // Переменные игры
-        let balls = [];
+        // Ресурсы и состояние игры
         let resources = {
-            wood: 0,
-            food: 0
+            wood: 100,
+            food: 50
         };
+        
+        let buildings = {
+            house: { x: 50, y: 50, width: 100, height: 100 },
+            farm: { x: canvas.width - 200, y: canvas.height/2 - 100, width: 200, height: 200, ready: false, progress: 0 },
+            forest: { x: canvas.width - 250, y: 50, width: 200, height: 200, trees: 10 }
+        };
+        
+        let balls = [];
         let selectedBall = null;
-        let currentLocation = 'village';
-        let dayTime = true; // true - день, false - ночь
-        let dayTimer = 0;
-        const DAY_DURATION = 600; // 10 минут в секундах (для демо уменьшено)
-        const NIGHT_DURATION = 300; // 5 минут в секундах (для демо уменьшено)
-        const DAY_CYCLE = DAY_DURATION + NIGHT_DURATION;
+        let isPaused = false;
+        let houseImg, ballImg, bgImg, farmReadyImg, farmNotReadyImg, forestImg;
+        let imagesLoaded = 0;
+        const totalImages = 6;
+        let lastTime = 0;
         
         // Загрузка изображений
-        let houseImg, ballImg, forestImg, farmImg;
-        let imagesLoaded = 0;
-        const totalImages = 4;
-        
         function loadImages() {
             houseImg = new Image();
-            houseImg.src = 'https://i.pinimg.com/736x/83/a2/be/83a2beadde89316b0bd43c5a58d956f2.jpg';
+            houseImg.src = 'basic_house.png';
             houseImg.onload = imageLoaded;
             
             ballImg = new Image();
-            ballImg.src = 'https://i.pinimg.com/736x/6d/f0/bc/6df0bcb84b425f6cf2f9b8954f1b0916.jpg';
+            ballImg.src = 'reb_guy.png';
             ballImg.onload = imageLoaded;
+            
+            bgImg = new Image();
+            bgImg.src = 'bg_game.png';
+            bgImg.onload = imageLoaded;
+            
+            farmReadyImg = new Image();
+            farmReadyImg.src = 'ready_ground.png';
+            farmReadyImg.onload = imageLoaded;
+            
+            farmNotReadyImg = new Image();
+            farmNotReadyImg.src = 'not_ready_ground.png';
+            farmNotReadyImg.onload = imageLoaded;
             
             forestImg = new Image();
             forestImg.src = 'forest.png';
             forestImg.onload = imageLoaded;
-            forestImg.onerror = () => {
-                // Заглушка если изображение не загрузилось
-                forestImg = createPlaceholderImage(200, 200, '#2ecc71');
-                imageLoaded();
-            };
-            
-            farmImg = new Image();
-            farmImg.src = 'not_ready.png';
-            farmImg.onload = imageLoaded;
-            farmImg.onerror = () => {
-                // Заглушка если изображение не загрузилось
-                farmImg = createPlaceholderImage(200, 200, '#f1c40f');
-                imageLoaded();
-            };
-        }
-        
-        function createPlaceholderImage(width, height, color) {
-            const canvas = document.createElement('canvas');
-            canvas.width = width;
-            canvas.height = height;
-            const ctx = canvas.getContext('2d');
-            ctx.fillStyle = color;
-            ctx.fillRect(0, 0, width, height);
-            ctx.fillStyle = '#fff';
-            ctx.font = '20px Arial';
-            ctx.textAlign = 'center';
-            ctx.fillText('Локация', width/2, height/2);
-            const img = new Image();
-            img.src = canvas.toDataURL();
-            return img;
         }
         
         function imageLoaded() {
@@ -227,159 +192,169 @@
         class Ball {
             constructor() {
                 this.radius = 25;
-                this.x = canvas.width/2;
-                this.y = canvas.height/2;
-                this.speed = 1;
-                this.capacity = 100;
-                this.currentLoad = 0;
-                this.resourceType = null; // 'wood' или 'food'
-                this.task = 'idle'; // 'idle', 'gathering', 'returning', 'resting'
+                this.x = buildings.house.x + buildings.house.width/2;
+                this.y = buildings.house.y + buildings.house.height/2;
+                this.speedX = 0;
+                this.speedY = 0;
                 this.targetX = null;
                 this.targetY = null;
-                this.name = 'Шарик ' + (balls.length + 1);
-                this.isSleeping = false;
-                this.alpha = 1;
-                this.upgrades = {
-                    capacity: 0,
-                    speed: 0
-                };
+                this.jumpPhase = Math.random() * Math.PI * 2;
+                this.jumpHeight = 3;
+                this.jumpSpeed = 0.08;
+                this.baseY = this.y;
+                this.level = 1;
+                this.capacity = 100;
+                this.speedMultiplier = 1;
+                this.foodConsumption = 1;
+                this.resource = null;
+                this.resourceAmount = 0;
+                this.workTarget = null;
+                this.workType = null;
+                this.isWorking = false;
+                this.workProgress = 0;
+                this.id = Math.random().toString(36).substring(7);
             }
             
-            setTask(task, targetX, targetY) {
-                this.task = task;
-                this.targetX = targetX;
-                this.targetY = targetY;
-                
-                if (task === 'gathering') {
-                    this.resourceType = Math.random() > 0.5 ? 'wood' : 'food';
-                }
-            }
-            
-            update() {
-                // Если ночь и шарик не дома, отправляем его домой
-                if (!dayTime && this.task !== 'resting' && !this.isSleeping) {
-                    this.setTask('resting', canvas.width/2, canvas.height/2);
-                }
-                
-                // Если шарик спит и наступило утро, просыпаемся
-                if (dayTime && this.isSleeping) {
-                    this.isSleeping = false;
-                    this.alpha = 1;
-                    this.task = 'idle';
-                }
-                
-                // Если у шарика есть цель, двигаемся к ней
-                if (this.targetX !== null && this.targetY !== null && !this.isSleeping) {
+            update(deltaTime) {
+                // Движение к цели
+                if (this.targetX !== null && this.targetY !== null) {
                     const dx = this.targetX - this.x;
                     const dy = this.targetY - this.y;
                     const distance = Math.sqrt(dx * dx + dy * dy);
                     
                     if (distance > 5) {
-                        this.x += (dx / distance) * this.speed;
-                        this.y += (dy / distance) * this.speed;
+                        this.speedX = (dx / distance) * 2 * this.speedMultiplier;
+                        this.speedY = (dy / distance) * 2 * this.speedMultiplier;
                     } else {
-                        // Достигли цели
-                        if (this.task === 'gathering') {
-                            // Начинаем собирать ресурсы
-                            this.currentLoad += 10;
-                            if (this.currentLoad >= this.capacity) {
-                                this.task = 'returning';
-                                this.targetX = canvas.width/2;
-                                this.targetY = canvas.height/2;
-                            }
-                        } else if (this.task === 'returning') {
-                            // Сдаём ресурсы
-                            resources[this.resourceType] += this.currentLoad;
-                            updateResources();
-                            this.currentLoad = 0;
-                            this.task = 'gathering';
-                            
-                            // Возвращаемся к сбору
-                            if (this.resourceType === 'wood') {
-                                this.targetX = 150;
-                                this.targetY = canvas.height - 150;
-                            } else {
-                                this.targetX = canvas.width - 150;
-                                this.targetY = canvas.height - 150;
-                            }
-                        } else if (this.task === 'resting') {
-                            // Ложимся спать (плавно исчезаем)
-                            this.alpha -= 0.02;
-                            if (this.alpha <= 0) {
-                                this.alpha = 0;
-                                this.isSleeping = true;
-                                this.targetX = null;
-                                this.targetY = null;
-                            }
-                        } else {
-                            this.targetX = null;
-                            this.targetY = null;
+                        this.speedX = 0;
+                        this.speedY = 0;
+                        this.targetX = null;
+                        this.targetY = null;
+                        
+                        // Если достигли рабочего места, начинаем работу
+                        if (this.workTarget) {
+                            this.isWorking = true;
+                        }
+                    }
+                }
+                
+                // Обновление позиции
+                this.x += this.speedX;
+                this.baseY += this.speedY;
+                
+                // Анимация прыжка
+                this.jumpPhase += this.jumpSpeed;
+                this.y = this.baseY + Math.sin(this.jumpPhase) * this.jumpHeight;
+                
+                // Работа на ферме
+                if (this.isWorking && this.workType === 'farm') {
+                    this.workProgress += deltaTime / 1000;
+                    
+                    if (this.workProgress >= 5) { // 5 секунд на сбор урожая
+                        this.workProgress = 0;
+                        this.resource = 'food';
+                        this.resourceAmount = this.capacity;
+                        buildings.farm.ready = false;
+                        buildings.farm.progress = 0;
+                        this.isWorking = false;
+                        this.workTarget = 'house'; // Возвращаемся домой
+                        this.setTarget(buildings.house.x + buildings.house.width/2, buildings.house.y + buildings.house.height/2);
+                    }
+                }
+                
+                // Работа в лесу
+                if (this.isWorking && this.workType === 'wood') {
+                    this.workProgress += deltaTime / 1000;
+                    
+                    if (this.workProgress >= 3) { // 3 секунды на рубку дерева
+                        this.workProgress = 0;
+                        this.resource = 'wood';
+                        this.resourceAmount = Math.min(this.capacity, 20); // Макс 20 дерева за раз
+                        buildings.forest.trees = Math.max(0, buildings.forest.trees - 1);
+                        this.isWorking = false;
+                        this.workTarget = 'house'; // Возвращаемся домой
+                        this.setTarget(buildings.house.x + buildings.house.width/2, buildings.house.y + buildings.house.height/2);
+                    }
+                }
+                
+                // Если вернулись домой с ресурсами
+                if (this.workTarget === 'house' && this.resourceAmount > 0 && 
+                    this.distanceTo(buildings.house.x + buildings.house.width/2, buildings.house.y + buildings.house.height/2) < 30) {
+                    resources[this.resource] += this.resourceAmount;
+                    this.resourceAmount = 0;
+                    this.resource = null;
+                    updateResources();
+                    
+                    // Возвращаемся к работе, если она была назначена
+                    if (this.workType) {
+                        if (this.workType === 'farm') {
+                            this.workTarget = 'farm';
+                            this.setTarget(buildings.farm.x + buildings.farm.width/2, buildings.farm.y + buildings.farm.height/2);
+                        } else if (this.workType === 'wood') {
+                            this.workTarget = 'forest';
+                            this.setTarget(buildings.forest.x + buildings.forest.width/2, buildings.forest.y + buildings.forest.height/2);
                         }
                     }
                 }
             }
             
+            setTarget(x, y) {
+                this.targetX = x;
+                this.targetY = y;
+                this.isWorking = false;
+            }
+            
+            distanceTo(x, y) {
+                const dx = this.x - x;
+                const dy = this.y - y;
+                return Math.sqrt(dx * dx + dy * dy);
+            }
+            
             draw() {
-                if (this.isSleeping) return;
+                let scale = 1.0 + 0.1 * Math.sin(this.jumpPhase);
+                let offsetY = 0;
                 
-                ctx.globalAlpha = this.alpha;
-                
-                // Рисуем шарик
-                const size = this.radius * 2;
+                const size = this.radius * 2 * scale;
                 ctx.drawImage(
                     ballImg, 
                     this.x - size/2, 
-                    this.y - size/2, 
+                    this.y - size/2 + offsetY, 
                     size, 
                     size
                 );
                 
-                // Рисуем индикатор задания
-                ctx.fillStyle = '#fff';
-                ctx.font = '12px Arial';
+                // Отображение уровня шарика
+                ctx.fillStyle = '#ffffff';
+                ctx.font = '14px Arial';
                 ctx.textAlign = 'center';
+                ctx.fillText(this.level.toString(), this.x, this.y + 5);
                 
-                let taskText = '';
-                if (this.task === 'gathering') {
-                    taskText = `Сбор: ${this.resourceType === 'wood' ? 'Дерево' : 'Еда'}`;
-                } else if (this.task === 'returning') {
-                    taskText = 'Возвращение';
-                } else if (this.task === 'resting') {
-                    taskText = 'Отдых';
-                } else {
-                    taskText = 'Без дела';
+                // Отображение ресурсов, если есть
+                if (this.resourceAmount > 0) {
+                    ctx.fillStyle = this.resource === 'wood' ? '#8B4513' : '#FFD700';
+                    ctx.fillRect(this.x - 20, this.y - 40, 40 * (this.resourceAmount / this.capacity), 5);
                 }
-                
-                ctx.fillText(taskText, this.x, this.y - this.radius - 10);
-                
-                // Рисуем индикатор груза, если есть
-                if (this.currentLoad > 0) {
-                    ctx.fillText(`Груз: ${this.currentLoad}/${this.capacity}`, this.x, this.y - this.radius - 25);
-                }
-                
-                // Если шарик выбран, рисуем обводку
-                if (selectedBall === this) {
-                    ctx.strokeStyle = '#3498db';
-                    ctx.lineWidth = 2;
-                    ctx.beginPath();
-                    ctx.arc(this.x, this.y, this.radius + 2, 0, Math.PI * 2);
-                    ctx.stroke();
-                }
-                
-                ctx.globalAlpha = 1;
             }
             
-            upgrade(stat) {
-                if (stat === 'capacity') {
-                    this.capacity += 20;
-                    this.upgrades.capacity++;
-                } else if (stat === 'speed') {
-                    this.speed += 0.2;
-                    this.upgrades.speed++;
-                }
+            upgrade() {
+                this.level++;
+                this.capacity += 20;
+                this.speedMultiplier += 0.2;
+                this.foodConsumption += 0.5;
+                resources.food -= 25;
+                updateResources();
+                updateSelectedBallInfo();
+            }
+            
+            assignWork(type) {
+                this.workType = type;
                 
-                if (selectedBall === this) {
-                    updateBallInfo();
+                if (type === 'wood') {
+                    this.workTarget = 'forest';
+                    this.setTarget(buildings.forest.x + buildings.forest.width/2, buildings.forest.y + buildings.forest.height/2);
+                } else if (type === 'farm') {
+                    this.workTarget = 'farm';
+                    this.setTarget(buildings.farm.x + buildings.farm.width/2, buildings.farm.y + buildings.farm.height/2);
                 }
             }
         }
@@ -387,86 +362,92 @@
         // Инициализация игры
         function initGame() {
             // Создаем начальные шарики
-            for (let i = 0; i < 3; i++) {
-                const newBall = new Ball();
-                newBall.x = canvas.width/2 + (i * 60 - 60);
-                balls.push(newBall);
+            for (let i = 0; i < 5; i++) {
+                balls.push(new Ball());
             }
             
-            // Обработчик клика по canvas для выбора шариков
+            // Обработчик клика по canvas
             canvas.addEventListener('click', (e) => {
+                if (isPaused) return;
+                
                 const rect = canvas.getBoundingClientRect();
                 const x = e.clientX - rect.left;
                 const y = e.clientY - rect.top;
                 
+                // Проверяем, не кликнули ли по UI
+                if (x < 300 && y < 400) return;
+                
                 // Проверяем, кликнули ли по шарику
-                selectedBall = null;
+                let clickedOnBall = false;
                 for (let i = balls.length - 1; i >= 0; i--) {
                     const ball = balls[i];
                     const dx = ball.x - x;
                     const dy = ball.y - y;
                     const distance = Math.sqrt(dx * dx + dy * dy);
                     
-                    if (distance <= ball.radius && !ball.isSleeping) {
-                        selectedBall = ball;
-                        updateBallInfo();
+                    if (distance < ball.radius) {
+                        selectBall(ball);
+                        clickedOnBall = true;
                         break;
                     }
                 }
-            });
-            
-            // Кнопки заданий
-            taskWoodButton.addEventListener('click', () => {
-                if (selectedBall && dayTime) {
-                    selectedBall.setTask('gathering', 150, canvas.height - 150);
-                    updateBallInfo();
+                
+                // Если кликнули не по шарику, но есть выбранный шарик - перемещаем его
+                if (!clickedOnBall && selectedBall) {
+                    selectedBall.setTarget(x, y);
+                    selectedBall.workType = null;
+                    selectedBall.workTarget = null;
+                    selectedBall.isWorking = false;
                 }
             });
             
-            taskFoodButton.addEventListener('click', () => {
-                if (selectedBall && dayTime) {
-                    selectedBall.setTask('gathering', canvas.width - 150, canvas.height - 150);
-                    updateBallInfo();
+            // Кнопка добавления шарика
+            addBallButton.addEventListener('click', () => {
+                if (resources.food >= 50) {
+                    const newBall = new Ball();
+                    balls.push(newBall);
+                    resources.food -= 50;
+                    updateResources();
+                    updateBallCount();
                 }
             });
             
-            taskRestButton.addEventListener('click', () => {
+            // Кнопка улучшения шарика
+            upgradeBallButton.addEventListener('click', () => {
+                if (selectedBall && resources.food >= 25) {
+                    selectedBall.upgrade();
+                }
+            });
+            
+            // Кнопки назначения работы
+            assignWoodButton.addEventListener('click', () => {
                 if (selectedBall) {
-                    selectedBall.setTask('idle', null, null);
-                    updateBallInfo();
+                    selectedBall.assignWork('wood');
                 }
             });
             
-            // Кнопки улучшений
-            upgradeCapacityButton.addEventListener('click', () => {
-                if (selectedBall && resources.wood >= 20) {
-                    resources.wood -= 20;
-                    selectedBall.upgrade('capacity');
-                    updateResources();
+            assignFarmButton.addEventListener('click', () => {
+                if (selectedBall) {
+                    selectedBall.assignWork('farm');
                 }
             });
             
-            upgradeSpeedButton.addEventListener('click', () => {
-                if (selectedBall && resources.wood >= 30) {
-                    resources.wood -= 30;
-                    selectedBall.upgrade('speed');
-                    updateResources();
+            // Кнопка перемещения
+            moveBallButton.addEventListener('click', () => {
+                if (selectedBall) {
+                    selectedBall.workType = null;
+                    selectedBall.workTarget = null;
+                    selectedBall.isWorking = false;
                 }
-            });
-            
-            // Кнопки переключения локаций
-            goToForestButton.addEventListener('click', () => {
-                currentLocation = 'forest';
-            });
-            
-            goToFarmButton.addEventListener('click', () => {
-                currentLocation = 'farm';
             });
             
             // Обработчик изменения размера окна
             window.addEventListener('resize', () => {
                 canvas.width = window.innerWidth;
                 canvas.height = window.innerHeight;
+                // Обновляем позиции зданий
+                buildings.farm.x = canvas.width - 200;
+                buildings.forest.x = canvas.width - 250;
             });
             
             updateResources();
@@ -477,6 +458,9 @@
         function updateResources() {
             woodCountElement.textContent = resources.wood;
             foodCountElement.textContent = resources.food;
+            
+            // Активируем кнопку добавления шарика, если достаточно еды
+            addBallButton.disabled = resources.food < 50;
         }
         
         // Обновление счетчика шариков
@@ -484,127 +468,88 @@
             ballCountElement.textContent = balls.length;
         }
         
+        // Выбор шарика
+        function selectBall(ball) {
+            selectedBall = ball;
+            selectedBallInfo.style.display = 'block';
+            updateSelectedBallInfo();
+        }
+        
         // Обновление информации о выбранном шарике
-        function updateBallInfo() {
-            if (selectedBall) {
-                selectedBallNameElement.textContent = selectedBall.name;
+        function updateSelectedBallInfo() {
+            if (!selectedBall) return;
+            
+            ballLevelElement.textContent = selectedBall.level;
+            ballCapacityElement.textContent = selectedBall.capacity;
+            ballSpeedElement.textContent = selectedBall.speedMultiplier.toFixed(1);
+            ballConsumptionElement.textContent = selectedBall.foodConsumption.toFixed(1);
+            
+            // Активируем кнопку улучшения, если достаточно еды
+            upgradeBallButton.disabled = resources.food < 25;
+        }
+        
+        // Обновление состояния фермы
+        function updateFarm(deltaTime) {
+            if (!buildings.farm.ready) {
+                buildings.farm.progress += deltaTime / 1000 / 60; // 1 минута для созревания
                 
-                let taskText = '';
-                if (selectedBall.task === 'gathering') {
-                    taskText = `Сбор: ${selectedBall.resourceType === 'wood' ? 'Дерево' : 'Еда'}`;
-                } else if (selectedBall.task === 'returning') {
-                    taskText = 'Возвращение';
-                } else if (selectedBall.task === 'resting') {
-                    taskText = 'Отдых';
-                } else {
-                    taskText = 'Без дела';
+                if (buildings.farm.progress >= 1) {
+                    buildings.farm.ready = true;
                 }
-                
-                ballTaskElement.textContent = taskText;
-                ballCapacityElement.textContent = selectedBall.capacity;
-                ballSpeedElement.textContent = selectedBall.speed.toFixed(1);
-                
-                // Обновляем стоимость улучшений
-                upgradeCapacityButton.textContent = `Улучшить вместимость (+20) - ${20 + selectedBall.upgrades.capacity * 10}`;
-                upgradeCapacityButton.dataset.cost = 20 + selectedBall.upgrades.capacity * 10;
-                
-                upgradeSpeedButton.textContent = `Улучшить скорость (+0.2) - ${30 + selectedBall.upgrades.speed * 15}`;
-                upgradeSpeedButton.dataset.cost = 30 + selectedBall.upgrades.speed * 15;
-            } else {
-                selectedBallNameElement.textContent = "Выберите шарик";
-                ballTaskElement.textContent = "Нет";
-                ballCapacityElement.textContent = "0";
-                ballSpeedElement.textContent = "0";
             }
         }
         
-        // Обновление времени суток
-        function updateTime(deltaTime) {
-            dayTimer += deltaTime;
-            
-            if (dayTime && dayTimer >= DAY_DURATION) {
-                dayTime = false;
-                dayTimer = 0;
-                
-                // Ночь - отправляем всех шариков домой
-                balls.forEach(ball => {
-                    if (!ball.isSleeping) {
-                        ball.setTask('resting', canvas.width/2, canvas.height/2);
-                    }
-                });
-            } else if (!dayTime && dayTimer >= NIGHT_DURATION) {
-                dayTime = true;
-                dayTimer = 0;
-            }
-            
-            // Обновляем отображение времени
-            const totalSeconds = dayTime ? dayTimer : dayTimer + DAY_DURATION;
-            const cycleProgress = (totalSeconds % DAY_CYCLE) / DAY_CYCLE;
-            dayNightProgressElement.style.width = (cycleProgress * 100) + '%';
-            
-            const minutes = Math.floor(totalSeconds / 60);
-            const seconds = Math.floor(totalSeconds % 60);
-            const timeString = `${dayTime ? 'День' : 'Ночь'}: ${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
-            timeDisplayElement.textContent = timeString;
+        // Потребление еды шариками
+        function consumeFood(deltaTime) {
+            const totalConsumption = balls.reduce((sum, ball) => sum + ball.foodConsumption, 0) * (deltaTime / 1000 / 60);
+            resources.food = Math.max(0, resources.food - totalConsumption);
+            updateResources();
         }
         
         // Основной игровой цикл
-        let lastTime = 0;
         function gameLoop(timestamp) {
-            const deltaTime = (timestamp - lastTime) / 1000;
+            if (!lastTime) lastTime = timestamp;
+            const deltaTime = timestamp - lastTime;
             lastTime = timestamp;
             
+            if (isPaused) return;
+            
             // Очищаем canvas
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            ctx.drawImage(bgImg, 0, 0, canvas.width, canvas.height);
             
-            // Рисуем фон в зависимости от локации
-            if (currentLocation === 'forest') {
-                ctx.drawImage(forestImg, 0, 0, canvas.width, canvas.height);
-            } else if (currentLocation === 'farm') {
-                ctx.drawImage(farmImg, 0, 0, canvas.width, canvas.height);
-            } else {
-                // Деревня - рисуем дом
-                const houseSize = 200;
-                ctx.drawImage(
-                    houseImg, 
-                    canvas.width/2 - houseSize/2, 
-                    canvas.height/2 - houseSize/2, 
-                    houseSize, 
-                    houseSize
-                );
-            }
+            // Рисуем здания
+            ctx.drawImage(houseImg, buildings.house.x, buildings.house.y, buildings.house.width, buildings.house.height);
             
-            // Обновляем время суток
-            updateTime(deltaTime);
+            // Рисуем ферму
+            const farmImg = buildings.farm.ready ? farmReadyImg : farmNotReadyImg;
+            ctx.drawImage(farmImg, buildings.farm.x, buildings.farm.y, buildings.farm.width, buildings.farm.height);
+            
+            // Рисуем лес
+            ctx.drawImage(forestImg, buildings.forest.x, buildings.forest.y, buildings.forest.width, buildings.forest.height);
+            ctx.fillStyle = 'rgba(0, 0, 0, 0.7)';
+            ctx.font = '16px Arial';
+            ctx.fillText(`Деревьев: ${buildings.forest.trees}`, buildings.forest.x + 10, buildings.forest.y + 20);
             
             // Обновляем и рисуем шарики
             balls.forEach(ball => {
-                ball.update();
+                ball.update(deltaTime);
                 ball.draw();
             });
             
-            // Рисуем зоны сбора ресурсов
-            if (currentLocation === 'village') {
-                // Лес
-                ctx.globalAlpha = 0.3;
-                ctx.fillStyle = '#2ecc71';
-                ctx.beginPath();
-                ctx.arc(150, canvas.height - 150, 100, 0, Math.PI * 2);
-                ctx.fill();
-                
-                // Ферма
-                ctx.fillStyle = '#f1c40f';
-                ctx.beginPath();
-                ctx.arc(canvas.width - 150, canvas.height - 150, 100, 0, Math.PI * 2);
-                ctx.fill();
-                ctx.globalAlpha = 1;
-                
-                // Подписи
-                ctx.fillStyle = '#fff';
-                ctx.font = '16px Arial';
-                ctx.textAlign = 'center';
-                ctx.fillText('Лес', 150, canvas.height - 150);
-                ctx.fillText('Ферма', canvas.width - 150, canvas.height - 150);
+            // Обновляем состояние фермы
+            updateFarm(deltaTime);
+            
+            // Потребление еды
+            consumeFood(deltaTime);
+            
+            // Удаляем шарики, если еды недостаточно (голод)
+            if (resources.food <= 0) {
+                if (balls.length > 0) {
+                    balls.pop();
+                    updateBallCount();
+                    resources.food = 0;
+                    updateResources();
+                }
             }
             
             requestAnimationFrame(gameLoop);
