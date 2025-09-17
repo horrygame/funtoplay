@@ -23,6 +23,8 @@
             width: 100vw;
             height: 100vh;
             overflow: hidden;
+            background: url('bg_game.png');
+            background-size: cover;
         }
         
         .game-header {
@@ -84,9 +86,9 @@
             position: absolute;
             width: 40px;
             height: 40px;
-            border-radius: 50%;
-            background: #ff0000;
-            box-shadow: 0 0 10px rgba(255, 0, 0, 0.7);
+            background: url('red_guys.png');
+            background-size: contain;
+            background-repeat: no-repeat;
             transition: all 0.3s ease;
             z-index: 10;
             display: flex;
@@ -101,95 +103,51 @@
             position: absolute;
             width: 100px;
             height: 100px;
-            background: #8B4513;
-            border: 3px solid #5D2906;
-            border-radius: 10px;
+            background: url('basic_house.png');
+            background-size: contain;
+            background-repeat: no-repeat;
             z-index: 5;
             display: flex;
             justify-content: center;
             align-items: center;
             color: white;
             font-weight: bold;
-            box-shadow: 0 0 15px rgba(0, 0, 0, 0.4);
-        }
-        
-        .house::before {
-            content: '';
-            position: absolute;
-            width: 120px;
-            height: 40px;
-            background: #A52A2A;
-            top: -30px;
-            left: -10px;
-            border-radius: 10px 10px 0 0;
-            clip-path: polygon(0% 100%, 50% 0%, 100% 100%);
         }
         
         .forest {
             position: absolute;
             width: 100px;
             height: 100px;
-            background: #228B22;
-            border: 3px solid #006400;
-            border-radius: 10px;
+            background: url('forest.png');
+            background-size: contain;
+            background-repeat: no-repeat;
             z-index: 5;
             display: flex;
             justify-content: center;
             align-items: center;
             color: white;
             font-weight: bold;
-            box-shadow: 0 0 15px rgba(0, 0, 0, 0.4);
-            overflow: hidden;
-        }
-        
-        .forest::before, .forest::after {
-            content: '';
-            position: absolute;
-            background: #006400;
-            border-radius: 50%;
-        }
-        
-        .forest::before {
-            width: 60px;
-            height: 60px;
-            top: -20px;
-            left: 20px;
-        }
-        
-        .forest::after {
-            width: 50px;
-            height: 50px;
-            bottom: -15px;
-            right: 15px;
         }
         
         .ground {
             position: absolute;
             width: 100px;
             height: 100px;
-            background: #D2B48C;
-            border: 3px solid #A52A2A;
-            border-radius: 10px;
+            background: url('not_ready_ground.png');
+            background-size: contain;
+            background-repeat: no-repeat;
             z-index: 5;
             display: flex;
             justify-content: center;
             align-items: center;
             color: white;
             font-weight: bold;
-            box-shadow: 0 0 15px rgba(0, 0, 0, 0.4);
         }
         
         .ground.ready {
-            background: #32CD32;
-        }
-        
-        .ground.ready::before {
-            content: '';
-            position: absolute;
-            width: 80%;
-            height: 80%;
-            background: #228B22;
-            border-radius: 50%;
+            background: url('ready_ground.png');
+            background-size: contain;
+            background-repeat: no-repeat;
         }
         
         .controls {
@@ -266,6 +224,56 @@
             font-weight: bold;
             box-shadow: 0 0 5px rgba(0, 0, 0, 0.5);
         }
+        
+        /* Запасные стили на случай отсутствия изображений */
+        .unit.fallback {
+            background: #ff0000;
+            border-radius: 50%;
+            box-shadow: 0 0 10px rgba(255, 0, 0, 0.7);
+        }
+        
+        .house.fallback {
+            background: #8B4513;
+            border: 3px solid #5D2906;
+            border-radius: 10px;
+        }
+        
+        .house.fallback::before {
+            content: '';
+            position: absolute;
+            width: 120px;
+            height: 40px;
+            background: #A52A2A;
+            top: -30px;
+            left: -10px;
+            border-radius: 10px 10px 0 0;
+            clip-path: polygon(0% 100%, 50% 0%, 100% 100%);
+        }
+        
+        .forest.fallback {
+            background: #228B22;
+            border: 3px solid #006400;
+            border-radius: 10px;
+        }
+        
+        .ground.fallback {
+            background: #D2B48C;
+            border: 3px solid #A52A2A;
+            border-radius: 10px;
+        }
+        
+        .ground.ready.fallback {
+            background: #32CD32;
+        }
+        
+        .ground.ready.fallback::before {
+            content: '';
+            position: absolute;
+            width: 80%;
+            height: 80%;
+            background: #228B22;
+            border-radius: 50%;
+        }
     </style>
 </head>
 <body>
@@ -282,9 +290,9 @@
             </div>
         </div>
         
-        <div class="house" style="top: 300px; left: 400px;">Дом</div>
-        <div class="forest" style="top: 150px; left: 200px;">Лес</div>
-        <div class="ground" style="top: 450px; left: 200px;">Грядка</div>
+        <div class="house" style="top: 300px; left: 400px;"></div>
+        <div class="forest" style="top: 150px; left: 200px;"></div>
+        <div class="ground" style="top: 450px; left: 200px;"></div>
         
         <div class="controls">
             <button id="send-wood">Отправить за деревом (1)</button>
@@ -299,6 +307,19 @@
 
     <script>
         document.addEventListener('DOMContentLoaded', function() {
+            // Проверка загрузки изображений
+            function checkImageLoad() {
+                const images = document.querySelectorAll('.unit, .house, .forest, .ground, #game-container');
+                images.forEach(img => {
+                    const fallbackClass = img.className.split(' ')[0] + '.fallback';
+                    if (!img.complete || img.naturalHeight === 0) {
+                        if (!img.classList.contains('fallback')) {
+                            img.classList.add('fallback');
+                        }
+                    }
+                });
+            }
+            
             // Игровые переменные
             let resources = {
                 wood: 100,
@@ -315,6 +336,9 @@
             for (let i = 0; i < 3; i++) {
                 createUnit();
             }
+            
+            // Проверяем загрузку изображений
+            setTimeout(checkImageLoad, 1000);
             
             // Обновляем счетчики
             updateResourceCounters();
@@ -354,7 +378,6 @@
                 unitElement.id = `unit-${unit.id}`;
                 unitElement.style.left = `${unit.x}px`;
                 unitElement.style.top = `${unit.y}px`;
-                unitElement.textContent = unit.level;
                 
                 // Добавляем бейдж уровня
                 const levelBadge = document.createElement('div');
@@ -419,7 +442,6 @@
                         freeUnit.foodConsumption = 0.1 * freeUnit.level;
                         
                         // Обновляем отображение уровня
-                        freeUnit.element.textContent = freeUnit.level;
                         freeUnit.element.querySelector('.level-badge').textContent = freeUnit.level;
                         
                         updateResourceCounters();
@@ -444,7 +466,6 @@
                         
                         // Анимация сбора
                         element.style.transform = 'scale(1.2)';
-                        element.style.background = '#ff8c00';
                         
                         setTimeout(() => {
                             unit.carrying = unit.capacity;
@@ -453,7 +474,6 @@
                             
                             // Возвращаем обычный вид
                             element.style.transform = 'scale(1)';
-                            element.style.background = '#ff0000';
                             
                             moveUnitToTarget(unit);
                         }, gatherTime);
@@ -468,7 +488,6 @@
                         
                         // Анимация сбора
                         element.style.transform = 'scale(1.2)';
-                        element.style.background = '#32CD32';
                         
                         setTimeout(() => {
                             unit.carrying = unit.capacity;
@@ -477,7 +496,6 @@
                             
                             // Возвращаем обычный вид
                             element.style.transform = 'scale(1)';
-                            element.style.background = '#ff0000';
                             
                             // Возвращаем текстуру грядки на "не готова"
                             document.querySelector('.ground').classList.remove('ready');
