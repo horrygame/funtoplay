@@ -92,6 +92,16 @@
             transition: transform 0.2s ease-out;
         }
         
+        .unit.jumping {
+            animation: jump 0.3s ease-out;
+        }
+        
+        @keyframes jump {
+            0% { transform: translateY(0); }
+            50% { transform: translateY(-20px); }
+            100% { transform: translateY(0); }
+        }
+        
         .house {
             position: absolute;
             width: 100px;
@@ -104,6 +114,8 @@
         
         .forest {
             position: absolute;
+            width: 100px;
+            height: 100px;
             background: url('forest.png');
             background-size: contain;
             background-repeat: no-repeat;
@@ -201,35 +213,6 @@
             box-shadow: 0 0 5px rgba(0, 0, 0, 0.5);
             z-index: 11;
         }
-        
-        /* Запасные стили на случай отсутствия изображений */
-        .unit.fallback {
-            background: #ff0000;
-            border-radius: 50%;
-            box-shadow: 0 0 10px rgba(255, 0, 0, 0.7);
-        }
-        
-        .house.fallback {
-            background: #8B4513;
-            border: 3px solid #5D2906;
-            border-radius: 10px;
-        }
-        
-        .forest.fallback {
-            background: #228B22;
-            border: 3px solid #006400;
-            border-radius: 10px;
-        }
-        
-        .ground.fallback {
-            background: #D2B48C;
-            border: 3px solid #A52A2A;
-            border-radius: 10px;
-        }
-        
-        .ground.ready.fallback {
-            background: #32CD32;
-        }
     </style>
 </head>
 <body>
@@ -323,8 +306,8 @@
                     carrying: 0,
                     target: null,
                     element: null,
-                    isJumping: false,
-                    jumpInterval: null
+                    isMoving: false,
+                    jumpTimeout: null
                 };
                 
                 units.push(unit);
@@ -368,19 +351,15 @@
             
             // Функция прыжка юнита
             function jumpUnit(unit) {
-                if (unit.isJumping) return;
-                
-                unit.isJumping = true;
                 const element = unit.element;
                 
-                // Прыжок вверх
-                element.style.transform = 'translateY(-15px)';
+                // Добавляем класс для анимации прыжка
+                element.classList.add('jumping');
                 
-                // Возврат в исходное положение после прыжка
+                // Убираем класс после завершения анимации
                 setTimeout(() => {
-                    element.style.transform = 'translateY(0)';
-                    unit.isJumping = false;
-                }, 200);
+                    element.classList.remove('jumping');
+                }, 300);
             }
             
             // Функция отправки юнита за деревом
@@ -426,6 +405,11 @@
             
             // Функция перемещения юнита к цели с прыжками
             function moveUnitToTarget(unit) {
+                if (unit.jumpTimeout) {
+                    clearTimeout(unit.jumpTimeout);
+                    unit.jumpTimeout = null;
+                }
+                
                 const element = unit.element;
                 const dx = unit.target.x - unit.x;
                 const dy = unit.target.y - unit.y;
@@ -437,12 +421,6 @@
                         // Начинаем собирать дерево
                         unit.carrying = 0;
                         const gatherTime = 3000 / unit.level;
-                        
-                        // Останавливаем прыжки во время сбора
-                        if (unit.jumpInterval) {
-                            clearInterval(unit.jumpInterval);
-                            unit.jumpInterval = null;
-                        }
                         
                         setTimeout(() => {
                             unit.carrying = unit.capacity;
@@ -458,12 +436,6 @@
                         
                         // Меняем текстуру грядки на "готова"
                         document.querySelector('.ground').classList.add('ready');
-                        
-                        // Останавливаем прыжки во время сбора
-                        if (unit.jumpInterval) {
-                            clearInterval(unit.jumpInterval);
-                            unit.jumpInterval = null;
-                        }
                         
                         setTimeout(() => {
                             unit.carrying = unit.capacity;
@@ -483,12 +455,6 @@
                         unit.task = null;
                         unit.target = null;
                         
-                        // Останавливаем прыжки
-                        if (unit.jumpInterval) {
-                            clearInterval(unit.jumpInterval);
-                            unit.jumpInterval = null;
-                        }
-                        
                         updateResourceCounters();
                         updateUnitCounters();
                     }
@@ -499,24 +465,14 @@
                         unit.task = null;
                         unit.target = null;
                         
-                        // Останавливаем прыжки
-                        if (unit.jumpInterval) {
-                            clearInterval(unit.jumpInterval);
-                            unit.jumpInterval = null;
-                        }
-                        
                         updateResourceCounters();
                         updateUnitCounters();
                     }
                     return;
                 }
                 
-                // Запускаем прыжки каждые 0.5 секунд
-                if (!unit.jumpInterval) {
-                    unit.jumpInterval = setInterval(() => {
-                        jumpUnit(unit);
-                    }, 700); // 500ms замирание + 200ms прыжок
-                }
+                // Делаем прыжок
+                jumpUnit(unit);
                 
                 // Продолжаем движение короткими прыжками
                 const speed = 2;
@@ -526,7 +482,10 @@
                 element.style.left = `${unit.x}px`;
                 element.style.top = `${unit.y}px`;
                 
-                requestAnimationFrame(() => moveUnitToTarget(unit));
+                // Замираем на 0.5 секунды после прыжка
+                unit.jumpTimeout = setTimeout(() => {
+                    moveUnitToTarget(unit);
+                }, 500);
             }
             
             // Потребление еды юнитами
@@ -541,15 +500,6 @@
                 
                 if (resources.food < 0) {
                     resources.food = 0;
-                    // Если еда закончилась, останавливаем всех юнитов
-                    if (resources.food === 0) {
-                        units.forEach(unit => {
-                            if (unit.jumpInterval) {
-                                clearInterval(unit.jumpInterval);
-                                unit.jumpInterval = null;
-                            }
-                        });
-                    }
                 }
                 
                 updateResourceCounters();
