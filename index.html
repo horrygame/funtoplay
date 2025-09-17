@@ -5,13 +5,17 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Survival of Red Balls</title>
     <style>
-        body {
+        * {
+            box-sizing: border-box;
             margin: 0;
             padding: 0;
-            font-family: Arial, sans-serif;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             overflow: hidden;
-            background-image:'bg_game.png'
-            image-rendering: pixelated;
+            background: linear-gradient(to bottom, #1e5799, #207cca);
+            color: #333;
         }
         
         #game-container {
@@ -21,60 +25,171 @@
             overflow: hidden;
         }
         
-        .resource-counter {
+        .game-header {
             position: absolute;
-            top: 10px;
-            left: 10px;
-            background: rgba(0, 0, 0, 0.7);
+            top: 0;
+            left: 0;
+            right: 0;
+            display: flex;
+            justify-content: space-between;
+            padding: 15px;
+            background: rgba(0, 0, 0, 0.6);
             color: white;
-            padding: 10px;
-            border-radius: 5px;
-            font-size: 18px;
+            z-index: 100;
+        }
+        
+        .resource-counter, .unit-info {
+            background: rgba(0, 0, 0, 0.7);
+            padding: 12px 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+        }
+        
+        .resource-counter div, .unit-info div {
+            margin: 5px 0;
+            font-size: 16px;
+            display: flex;
+            align-items: center;
+        }
+        
+        .resource-counter span, .unit-info span {
+            margin-left: 8px;
+            font-weight: bold;
+            color: #ffcc00;
+        }
+        
+        .icon {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            margin-right: 8px;
+        }
+        
+        .wood-icon {
+            background-color: #8B4513;
+            border-radius: 50%;
+        }
+        
+        .food-icon {
+            background-color: #FF6347;
+            border-radius: 50%;
+        }
+        
+        .unit-icon {
+            background-color: #FF0000;
+            border-radius: 50%;
         }
         
         .unit {
             position: absolute;
             width: 40px;
             height: 40px;
-            background-image:'red_guy.png'
-            background-size: contain;
-            background-repeat: no-repeat;
-            transition: all 0.5s ease;
+            border-radius: 50%;
+            background: #ff0000;
+            box-shadow: 0 0 10px rgba(255, 0, 0, 0.7);
+            transition: all 0.3s ease;
             z-index: 10;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: white;
+            font-weight: bold;
+            font-size: 14px;
         }
         
         .house {
             position: absolute;
             width: 100px;
             height: 100px;
-            background-image: 'basic_house.png
-            background-size: contain;
-            background-repeat: no-repeat;
+            background: #8B4513;
+            border: 3px solid #5D2906;
+            border-radius: 10px;
             z-index: 5;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: white;
+            font-weight: bold;
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.4);
+        }
+        
+        .house::before {
+            content: '';
+            position: absolute;
+            width: 120px;
+            height: 40px;
+            background: #A52A2A;
+            top: -30px;
+            left: -10px;
+            border-radius: 10px 10px 0 0;
+            clip-path: polygon(0% 100%, 50% 0%, 100% 100%);
         }
         
         .forest {
             position: absolute;
             width: 100px;
             height: 100px;
-            background-image: 'forest.png'
-            background-size: contain;
-            background-repeat: no-repeat;
+            background: #228B22;
+            border: 3px solid #006400;
+            border-radius: 10px;
             z-index: 5;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: white;
+            font-weight: bold;
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.4);
+            overflow: hidden;
+        }
+        
+        .forest::before, .forest::after {
+            content: '';
+            position: absolute;
+            background: #006400;
+            border-radius: 50%;
+        }
+        
+        .forest::before {
+            width: 60px;
+            height: 60px;
+            top: -20px;
+            left: 20px;
+        }
+        
+        .forest::after {
+            width: 50px;
+            height: 50px;
+            bottom: -15px;
+            right: 15px;
         }
         
         .ground {
             position: absolute;
             width: 100px;
             height: 100px;
-            background-image: 'not_ready_ground'
-            background-size: contain;
-            background-repeat: no-repeat;
+            background: #D2B48C;
+            border: 3px solid #A52A2A;
+            border-radius: 10px;
             z-index: 5;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: white;
+            font-weight: bold;
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.4);
         }
         
         .ground.ready {
-            background-image: 'ready_ground'
+            background: #32CD32;
+        }
+        
+        .ground.ready::before {
+            content: '';
+            position: absolute;
+            width: 80%;
+            height: 80%;
+            background: #228B22;
+            border-radius: 50%;
         }
         
         .controls {
@@ -83,60 +198,101 @@
             left: 50%;
             transform: translateX(-50%);
             background: rgba(0, 0, 0, 0.7);
-            padding: 15px;
-            border-radius: 10px;
+            padding: 15px 25px;
+            border-radius: 15px;
             display: flex;
-            gap: 10px;
+            gap: 15px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5);
         }
         
         button {
-            padding: 10px 15px;
+            padding: 12px 20px;
             border: none;
-            border-radius: 5px;
-            background: #4CAF50;
+            border-radius: 8px;
+            background: linear-gradient(to bottom, #4CAF50, #2E8B57);
             color: white;
             cursor: pointer;
             font-size: 16px;
+            font-weight: bold;
+            transition: all 0.2s ease;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+        }
+        
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 8px rgba(0, 0, 0, 0.4);
+        }
+        
+        button:active {
+            transform: translateY(1px);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
         }
         
         button:disabled {
-            background: #cccccc;
+            background: linear-gradient(to bottom, #cccccc, #999999);
             cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
         }
         
-        .unit-info {
+        .notification {
             position: absolute;
-            top: 10px;
-            right: 10px;
-            background: rgba(0, 0, 0, 0.7);
-            color: white;
-            padding: 10px;
-            border-radius: 5px;
-            font-size: 16px;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(255, 215, 0, 0.9);
+            color: #333;
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-weight: bold;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            z-index: 1000;
+        }
+        
+        .level-badge {
+            position: absolute;
+            top: -10px;
+            right: -10px;
+            background: gold;
+            color: #333;
+            width: 25px;
+            height: 25px;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 14px;
+            font-weight: bold;
+            box-shadow: 0 0 5px rgba(0, 0, 0, 0.5);
         }
     </style>
 </head>
 <body>
     <div id="game-container">
-        <div class="resource-counter">
-            <div>Дерево: <span id="wood-count">100</span></div>
-            <div>Еда: <span id="food-count">100</span></div>
+        <div class="game-header">
+            <div class="resource-counter">
+                <div><span class="icon wood-icon"></span>Дерево: <span id="wood-count">100</span></div>
+                <div><span class="icon food-icon"></span>Еда: <span id="food-count">100</span></div>
+            </div>
+            
+            <div class="unit-info">
+                <div><span class="icon unit-icon"></span>Юнитов: <span id="unit-count">3</span></div>
+                <div>Свободно: <span id="free-unit-count">3</span></div>
+            </div>
         </div>
         
-        <div class="unit-info">
-            <div>Юнитов: <span id="unit-count">3</span></div>
-            <div>Свободно: <span id="free-unit-count">3</span></div>
-        </div>
-        
-        <div class="house" style="top: 300px; left: 400px;"></div>
-        <div class="forest" style="top: 150px; left: 200px;"></div>
-        <div class="ground" style="top: 450px; left: 200px;"></div>
+        <div class="house" style="top: 300px; left: 400px;">Дом</div>
+        <div class="forest" style="top: 150px; left: 200px;">Лес</div>
+        <div class="ground" style="top: 450px; left: 200px;">Грядка</div>
         
         <div class="controls">
             <button id="send-wood">Отправить за деревом (1)</button>
             <button id="send-food">Отправить за едой (1)</button>
             <button id="upgrade-unit">Улучшить юнита (50 дерева)</button>
         </div>
+        
+        <div class="notification" id="notification"></div>
         
         <!-- Юниты будут добавляться динамически -->
     </div>
@@ -164,6 +320,17 @@
             updateResourceCounters();
             updateUnitCounters();
             
+            // Функция показа уведомления
+            function showNotification(message) {
+                const notification = document.getElementById('notification');
+                notification.textContent = message;
+                notification.style.opacity = '1';
+                
+                setTimeout(() => {
+                    notification.style.opacity = '0';
+                }, 2000);
+            }
+            
             // Функция создания юнита
             function createUnit() {
                 const unit = {
@@ -187,6 +354,14 @@
                 unitElement.id = `unit-${unit.id}`;
                 unitElement.style.left = `${unit.x}px`;
                 unitElement.style.top = `${unit.y}px`;
+                unitElement.textContent = unit.level;
+                
+                // Добавляем бейдж уровня
+                const levelBadge = document.createElement('div');
+                levelBadge.className = 'level-badge';
+                levelBadge.textContent = unit.level;
+                unitElement.appendChild(levelBadge);
+                
                 document.getElementById('game-container').appendChild(unitElement);
                 
                 unit.element = unitElement;
@@ -242,8 +417,13 @@
                         freeUnit.level += 1;
                         freeUnit.capacity = 100 * freeUnit.level;
                         freeUnit.foodConsumption = 0.1 * freeUnit.level;
+                        
+                        // Обновляем отображение уровня
+                        freeUnit.element.textContent = freeUnit.level;
+                        freeUnit.element.querySelector('.level-badge').textContent = freeUnit.level;
+                        
                         updateResourceCounters();
-                        alert(`Юнит улучшен до уровня ${freeUnit.level}!`);
+                        showNotification(`Юнит улучшен до уровня ${freeUnit.level}!`);
                     }
                 }
             });
@@ -262,10 +442,19 @@
                         unit.carrying = 0;
                         const gatherTime = 3000 / unit.level; // Время сбора зависит от уровня
                         
+                        // Анимация сбора
+                        element.style.transform = 'scale(1.2)';
+                        element.style.background = '#ff8c00';
+                        
                         setTimeout(() => {
                             unit.carrying = unit.capacity;
                             unit.task = 'returning_wood';
                             unit.target = { ...housePosition };
+                            
+                            // Возвращаем обычный вид
+                            element.style.transform = 'scale(1)';
+                            element.style.background = '#ff0000';
+                            
                             moveUnitToTarget(unit);
                         }, gatherTime);
                     } 
@@ -277,10 +466,18 @@
                         // Меняем текстуру грядки на "готова"
                         document.querySelector('.ground').classList.add('ready');
                         
+                        // Анимация сбора
+                        element.style.transform = 'scale(1.2)';
+                        element.style.background = '#32CD32';
+                        
                         setTimeout(() => {
                             unit.carrying = unit.capacity;
                             unit.task = 'returning_food';
                             unit.target = { ...housePosition };
+                            
+                            // Возвращаем обычный вид
+                            element.style.transform = 'scale(1)';
+                            element.style.background = '#ff0000';
                             
                             // Возвращаем текстуру грядки на "не готова"
                             document.querySelector('.ground').classList.remove('ready');
@@ -294,6 +491,13 @@
                         unit.carrying = 0;
                         unit.task = null;
                         unit.target = null;
+                        
+                        // Анимация доставки
+                        element.style.transform = 'scale(1.3)';
+                        setTimeout(() => {
+                            element.style.transform = 'scale(1)';
+                        }, 300);
+                        
                         updateResourceCounters();
                         updateUnitCounters();
                     }
@@ -303,6 +507,13 @@
                         unit.carrying = 0;
                         unit.task = null;
                         unit.target = null;
+                        
+                        // Анимация доставки
+                        element.style.transform = 'scale(1.3)';
+                        setTimeout(() => {
+                            element.style.transform = 'scale(1)';
+                        }, 300);
+                        
                         updateResourceCounters();
                         updateUnitCounters();
                     }
