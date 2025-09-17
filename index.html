@@ -204,7 +204,36 @@
             z-index: 11;
         }
         
-
+        /* Запасные стили на случай отсутствия изображений */
+        .unit.fallback {
+            background: #ff0000;
+            border-radius: 50%;
+            box-shadow: 0 0 10px rgba(255, 0, 0, 0.7);
+        }
+        
+        .house.fallback {
+            background: #8B4513;
+            border: 3px solid #5D2906;
+            border-radius: 10px;
+        }
+        
+        .forest.fallback {
+            background: #228B22;
+            border: 3px solid #006400;
+            border-radius: 10px;
+        }
+        
+        .ground.fallback {
+            background: #D2B48C;
+            border: 3px solid #A52A2A;
+            border-radius: 10px;
+        }
+        
+        .ground.ready.fallback {
+            background: #32CD32;
+        }
+    </style>
+</head>
 <body>
     <div id="game-container">
         <div class="game-header">
