@@ -204,61 +204,7 @@
             z-index: 11;
         }
         
-        /* Запасные стили на случай отсутствия изображений */
-        .unit.fallback {
-            background: #ff0000;
-            border-radius: 50%;
-            box-shadow: 0 0 10px rgba(255, 0, 0, 0.7);
-        }
-        
-        .house.fallback {
-            background: #8B4513;
-            border: 3px solid #5D2906;
-            border-radius: 10px;
-        }
-        
-        .forest.fallback {
-            background: #228B22;
-            border: 3px solid #006400;
-            border-radius: 10px;
-        }
-        
-        .ground.fallback {
-            background: #D2B48C;
-            border: 3px solid #A52A2A;
-            border-radius: 10px;
-        }
-        
-        .ground.ready.fallback {
-            background: #32CD32;
-        }
-    </style>
-</head>
-<body>
-    <div id="game-container">
-        <div class="game-header">
-            <div class="resource-counter">
-                <div><span class="icon wood-icon"></span>Дерево: <span id="wood-count">100</span></div>
-                <div><span class="icon food-icon"></span>Еда: <span id="food-count">100</span></div>
-            </div>
-            
-            <div class="unit-info">
-                <div><span class="icon unit-icon"></span>Юнитов: <span id="unit-count">3</span></div>
-                <div>Свободно: <span id="free-unit-count">3</span></div>
-            </div>
-        </div>
-        
-        <div class="house" style="top: 300px; left: 400px;"></div>
-        <div class="forest" style="top: 150px; left: 200px;"></div>
-        <div class="ground" style="top: 450px; left: 200px;"></div>
-        
-        <div class="controls">
-            <button id="send-wood">Отправить за деревом (1)</button>
-            <button id="send-food">Отправить за едой (1)</button>
-            <button id="upgrade-unit">Улучшить юнита (50 дерева)</button>
-        </div>
-        
-        <div class="notification" id="notification"></div>
+
         
         <!-- Юниты будут добавляться динамически -->
     </div>
