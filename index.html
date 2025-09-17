@@ -534,3 +534,574 @@
     </script>
 </body>
 </html>
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Прыгающие шарики с зонами строительства</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            font-family: Arial, sans-serif;
+        }
+        canvas {
+            display: block;
+        }
+        .controls {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            background: rgba(255, 255, 255, 0.95);
+            padding: 15px;
+            border-radius: 10px;
+            z-index: 10;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        }
+        .build-menu {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: rgba(255, 255, 255, 0.95);
+            padding: 15px;
+            border-radius: 10px;
+            z-index: 10;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        }
+        button {
+            padding: 10px 20px;
+            margin: 8px;
+            border: none;
+            border-radius: 8px;
+            background: linear-gradient(45deg, #4CAF50, #45a049);
+            color: white;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: bold;
+            transition: transform 0.2s, box-shadow 0.2s;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+        }
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(0,0,0,0.3);
+        }
+        button:active {
+            transform: translateY(0);
+        }
+        button:disabled {
+            background: linear-gradient(45deg, #cccccc, #aaaaaa);
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+        .build-option {
+            display: block;
+            width: 100%;
+            margin: 10px 0;
+        }
+        .debug {
+            position: absolute;
+            bottom: 10px;
+            left: 10px;
+            background: rgba(255, 255, 255, 0.9);
+            padding: 10px;
+            border-radius: 8px;
+            z-index: 10;
+        }
+        .resource-counter {
+            font-size: 18px;
+            font-weight: bold;
+            color: #2c3e50;
+            margin-bottom: 10px;
+        }
+        .construction-status {
+            font-size: 14px;
+            color: #7f8c8d;
+            margin-top: 10px;
+            font-style: italic;
+        }
+        h3 {
+            color: #2c3e50;
+            margin: 0 0 15px 0;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <canvas id="gameCanvas"></canvas>
+    
+    <div class="controls">
+        <div class="resource-counter" id="resourceCounter">Ресурсы: 1000</div>
+        <div id="ballCount">Шариков: 5</div>
+        <button id="addBall">Добавить шарик</button>
+        <button id="pauseBtn">Пауза</button>
+    </div>
+    
+    <div class="build-menu">
+        <h3>🏗️ Строительство</h3>
+        <button class="build-option" id="buildHouse">🏠 Построить дом (100)</button>
+        <div class="construction-status" id="constructionStatus">Выберите зону для строительства</div>
+    </div>
+    
+    <div class="debug">
+        <label>
+            <input type="checkbox" id="showBuildZones"> Показать зоны строительства
+        </label>
+    </div>
+
+    <script>
+        // Получаем элементы DOM
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+        const ballCountElement = document.getElementById('ballCount');
+        const resourceCounter = document.getElementById('resourceCounter');
+        const addBallButton = document.getElementById('addBall');
+        const pauseBtn = document.getElementById('pauseBtn');
+        const showBuildZonesCheckbox = document.getElementById('showBuildZones');
+        const buildHouseButton = document.getElementById('buildHouse');
+        const constructionStatus = document.getElementById('constructionStatus');
+        
+        // Устанавливаем размер canvas
+        function resizeCanvas() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+            updateBuildZones();
+        }
+        resizeCanvas();
+        
+        // Переменные игры
+        let balls = [];
+        let buildings = [];
+        let isPaused = false;
+        let showBuildZones = false;
+        let resources = 1000;
+        let selectedBuildingType = null;
+        let houseImg, ballImg, bgImg;
+        let imagesLoaded = 0;
+        const totalImages = 3;
+
+        // Зоны для строительства (правый край экрана)
+        let buildZones = [];
+
+        function updateBuildZones() {
+            buildZones = [
+                { 
+                    x: canvas.width * 0.7, 
+                    y: canvas.height * 0.1, 
+                    width: canvas.width * 0.25, 
+                    height: canvas.height * 0.25,
+                    occupied: false,
+                    building: null,
+                    type: 'build-zone'
+                },
+                { 
+                    x: canvas.width * 0.7, 
+                    y: canvas.height * 0.4, 
+                    width: canvas.width * 0.25, 
+                    height: canvas.height * 0.25,
+                    occupied: false,
+                    building: null,
+                    type: 'build-zone'
+                },
+                { 
+                    x: canvas.width * 0.7, 
+                    y: canvas.height * 0.7, 
+                    width: canvas.width * 0.25, 
+                    height: canvas.height * 0.25,
+                    occupied: false,
+                    building: null,
+                    type: 'build-zone'
+                }
+            ];
+        }
+
+        // Загрузка изображений
+        function loadImages() {
+            // Фон
+            bgImg = new Image();
+            bgImg.src = 'bg_game.png';
+            bgImg.onload = imageLoaded;
+            bgImg.onerror = () => {
+                console.log('Ошибка загрузки фона');
+                imageLoaded();
+            };
+            
+            // Дом
+            houseImg = new Image();
+            houseImg.src = 'basic_house.png';
+            houseImg.onload = imageLoaded;
+            houseImg.onerror = () => {
+                console.log('Ошибка загрузки изображения дома');
+                imageLoaded();
+            };
+            
+            // Шарик
+            ballImg = new Image();
+            ballImg.src = 'red_guy.png';
+            ballImg.onload = imageLoaded;
+            ballImg.onerror = () => {
+                console.log('Ошибка загрузки изображения шарика');
+                imageLoaded();
+            };
+        }
+        
+        function imageLoaded() {
+            imagesLoaded++;
+            if (imagesLoaded === totalImages) {
+                initGame();
+                requestAnimationFrame(gameLoop);
+            }
+        }
+
+        // Проверка столкновения с зонами строительства
+        function checkBuildZoneCollision(x, y, radius) {
+            for (const zone of buildZones) {
+                if (zone.occupied) continue; // Пропускаем занятые зоны
+                
+                // Проверяем, находится ли шарик внутри зоны строительства
+                const closestX = Math.max(zone.x, Math.min(x, zone.x + zone.width));
+                const closestY = Math.max(zone.y, Math.min(y, zone.y + zone.height));
+                
+                const distanceX = x - closestX;
+                const distanceY = y - closestY;
+                
+                if ((distanceX * distanceX + distanceY * distanceY) < (radius * radius)) {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        // Получение нормализованного направления от границы зоны строительства
+        function getBuildZoneNormal(x, y, radius) {
+            for (const zone of buildZones) {
+                if (zone.occupied) continue;
+                
+                const closestX = Math.max(zone.x, Math.min(x, zone.x + zone.width));
+                const closestY = Math.max(zone.y, Math.min(y, zone.y + zone.height));
+                
+                const distanceX = x - closestX;
+                const distanceY = y - closestY;
+                const distance = Math.sqrt(distanceX * distanceX + distanceY * distanceY);
+                
+                if (distance < radius) {
+                    return {
+                        x: distanceX / distance,
+                        y: distanceY / distance,
+                        zone: zone
+                    };
+                }
+            }
+            return null;
+        }
+
+        // Класс для шариков
+        class Ball {
+            constructor() {
+                this.radius = 25;
+                // Генерируем позицию, избегая зон строительства
+                let validPosition = false;
+                while (!validPosition) {
+                    this.x = Math.random() * (canvas.width * 0.6 - this.radius * 2) + this.radius;
+                    this.y = Math.random() * (canvas.height - this.radius * 2) + this.radius;
+                    validPosition = !checkBuildZoneCollision(this.x, this.y, this.radius);
+                }
+                
+                this.speedX = (Math.random() - 0.5) * 1.5;
+                this.speedY = (Math.random() - 0.5) * 1.5;
+                this.jumpPhase = Math.random() * Math.PI * 2;
+                this.jumpHeight = 3;
+                this.jumpSpeed = 0.08;
+                this.baseY = this.y;
+                this.isPaused = false;
+                this.pauseTimer = 0;
+                this.pauseDuration = 30;
+                this.wasAtMinSize = false;
+                this.minSizeThreshold = -0.95;
+            }
+            
+            update() {
+                if (this.isPaused) {
+                    this.pauseTimer--;
+                    if (this.pauseTimer <= 0) {
+                        this.isPaused = false;
+                    }
+                    return;
+                }
+                
+                // Сохраняем старые позиции для отката при столкновении
+                const oldX = this.x;
+                const oldY = this.y;
+                const oldBaseY = this.baseY;
+                
+                this.x += this.speedX;
+                this.baseY += this.speedY;
+                
+                this.jumpPhase += this.jumpSpeed;
+                this.y = this.baseY + Math.sin(this.jumpPhase) * this.jumpHeight;
+                
+                // Проверяем столкновение с зонами строительства
+                if (checkBuildZoneCollision(this.x, this.y, this.radius)) {
+                    const normal = getBuildZoneNormal(this.x, this.y, this.radius);
+                    if (normal) {
+                        // Отскакиваем от границы
+                        const dotProduct = this.speedX * normal.x + this.speedY * normal.y;
+                        this.speedX = this.speedX - 2 * dotProduct * normal.x;
+                        this.speedY = this.speedY - 2 * dotProduct * normal.y;
+                        
+                        // Возвращаем на предыдущую позицию
+                        this.x = oldX;
+                        this.y = oldY;
+                        this.baseY = oldBaseY;
+                        
+                        this.isPaused = true;
+                        this.pauseTimer = this.pauseDuration;
+                    }
+                }
+                
+                const isAtMinSize = Math.sin(this.jumpPhase) < this.minSizeThreshold;
+                
+                if (isAtMinSize && !this.wasAtMinSize) {
+                    this.isPaused = true;
+                    this.pauseTimer = this.pauseDuration;
+                }
+                
+                this.wasAtMinSize = isAtMinSize;
+                
+                // Отскок от границ экрана
+                if (this.x <= this.radius || this.x >= canvas.width - this.radius) {
+                    this.speedX = -this.speedX;
+                    this.isPaused = true;
+                    this.pauseTimer = this.pauseDuration;
+                }
+                
+                if (this.baseY <= this.radius || this.baseY >= canvas.height - this.radius) {
+                    this.speedY = -this.speedY;
+                    this.isPaused = true;
+                    this.pauseTimer = this.pauseDuration;
+                }
+            }
+            
+            draw() {
+                let scale = 1.0 + 0.1 * Math.sin(this.jumpPhase);
+                let offsetY = 0;
+                
+                if (this.isPaused) {
+                    scale = 0.9;
+                    offsetY = 5;
+                }
+                
+                const size = this.radius * 2 * scale;
+                
+                // Рисуем шарик с изображением, если оно загружено
+                if (ballImg.complete) {
+                    ctx.drawImage(
+                        ballImg, 
+                        this.x - size/2, 
+                        this.y - size/2 + offsetY, 
+                        size, 
+                        size
+                    );
+                } else {
+                    // Запасная отрисовка если изображение не загружено
+                    ctx.fillStyle = 'red';
+                    ctx.beginPath();
+                    ctx.arc(this.x, this.y + offsetY, size/2, 0, Math.PI * 2);
+                    ctx.fill();
+                }
+            }
+        }
+
+        // Класс для зданий
+        class Building {
+            constructor(type, x, y) {
+                this.type = type;
+                this.x = x;
+                this.y = y;
+                this.width = 80;
+                this.height = 80;
+            }
+            
+            draw() {
+                if (this.type === 'house' && houseImg.complete) {
+                    ctx.drawImage(houseImg, this.x, this.y, this.width, this.height);
+                } else {
+                    // Запасная отрисовка если изображение не загружено
+                    ctx.fillStyle = '#8B4513';
+                    ctx.fillRect(this.x, this.y, this.width, this.height);
+                    ctx.fillStyle = '#A52A2A';
+                    ctx.beginPath();
+                    ctx.moveTo(this.x, this.y);
+                    ctx.lineTo(this.x + this.width/2, this.y - 20);
+                    ctx.lineTo(this.x + this.width, this.y);
+                    ctx.closePath();
+                    ctx.fill();
+                }
+            }
+        }
+
+        // Инициализация игры
+        function initGame() {
+            // Создаем начальные шарики
+            for (let i = 0; i < 5; i++) {
+                balls.push(new Ball());
+            }
+            
+            // Обработчик клика по canvas
+            canvas.addEventListener('click', (e) => {
+                if (isPaused) return;
+                
+                const rect = canvas.getBoundingClientRect();
+                const x = e.clientX - rect.left;
+                const y = e.clientY - rect.top;
+                
+                // Проверяем, не кликнули ли по зоне строительства
+                for (const zone of buildZones) {
+                    if (!zone.occupied && 
+                        x >= zone.x && x <= zone.x + zone.width && 
+                        y >= zone.y && y <= zone.y + zone.height) {
+                        
+                        if (selectedBuildingType === 'house' && resources >= 100) {
+                            // Строим дом
+                            const building = new Building('house', zone.x + 10, zone.y + 10);
+                            buildings.push(building);
+                            zone.occupied = true;
+                            zone.building = building;
+                            resources -= 100;
+                            updateResourceCounter();
+                            constructionStatus.textContent = 'Дом построен!';
+                            selectedBuildingType = null;
+                            buildHouseButton.style.background = 'linear-gradient(45deg, #4CAF50, #45a049)';
+                        }
+                        return;
+                    }
+                }
+                
+                // Если клик не по зоне строительства, добавляем шарик
+                if (!checkBuildZoneCollision(x, y, 25)) {
+                    const newBall = new Ball();
+                    newBall.x = x;
+                    newBall.y = y;
+                    newBall.baseY = y;
+                    balls.push(newBall);
+                    updateBallCount();
+                }
+            });
+            
+            // Кнопка добавления шарика
+            addBallButton.addEventListener('click', () => {
+                const newBall = new Ball();
+                balls.push(newBall);
+                updateBallCount();
+            });
+            
+            // Кнопка паузы
+            pauseBtn.addEventListener('click', () => {
+                isPaused = !isPaused;
+                pauseBtn.textContent = isPaused ? 'Продолжить' : 'Пауза';
+                if (!isPaused) {
+                    requestAnimationFrame(gameLoop);
+                }
+            });
+            
+            // Кнопка строительства дома
+            buildHouseButton.addEventListener('click', () => {
+                if (resources >= 100) {
+                    selectedBuildingType = 'house';
+                    constructionStatus.textContent = 'Выберите зону для строительства дома';
+                    buildHouseButton.style.background = 'linear-gradient(45deg, #FFA500, #FF8C00)';
+                } else {
+                    constructionStatus.textContent = 'Недостаточно ресурсов!';
+                }
+            });
+            
+            // Показать/скрыть зоны строительства
+            showBuildZonesCheckbox.addEventListener('change', () => {
+                showBuildZones = showBuildZonesCheckbox.checked;
+            });
+            
+            // Обработчик изменения размера окна
+            window.addEventListener('resize', () => {
+                resizeCanvas();
+            });
+            
+            updateBallCount();
+            updateResourceCounter();
+        }
+
+        // Отрисовка зон строительства
+        function drawBuildZones() {
+            if (!showBuildZones) return;
+            
+            ctx.strokeStyle = 'rgba(0, 255, 0, 0.6)';
+            ctx.fillStyle = 'rgba(0, 255, 0, 0.2)';
+            ctx.lineWidth = 3;
+            ctx.setLineDash([5, 5]);
+            
+            for (const zone of buildZones) {
+                if (!zone.occupied) {
+                    ctx.beginPath();
+                    ctx.rect(zone.x, zone.y, zone.width, zone.height);
+                    ctx.stroke();
+                    ctx.fill();
+                    
+                    // Текст "Зона строительства"
+                    ctx.fillStyle = 'rgba(0, 100, 0, 0.8)';
+                    ctx.font = '14px Arial';
+                    ctx.textAlign = 'center';
+                    ctx.fillText('Зона строительства', zone.x + zone.width/2, zone.y + zone.height/2);
+                    ctx.textAlign = 'left';
+                }
+            }
+            
+            ctx.setLineDash([]);
+        }
+
+        // Обновление счетчиков
+        function updateBallCount() {
+            ballCountElement.textContent = `Шариков: ${balls.length}`;
+        }
+
+        function updateResourceCounter() {
+            resourceCounter.textContent = `Ресурсы: ${resources}`;
+        }
+
+        // Основной игровой цикл
+        function gameLoop() {
+            if (isPaused) return;
+            
+            // Очищаем canvas и рисуем фон
+            if (bgImg.complete) {
+                ctx.drawImage(bgImg, 0, 0, canvas.width, canvas.height);
+            } else {
+                // Запасной фон если изображение не загружено
+                ctx.fillStyle = '#87CEEB';
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+                ctx.fillStyle = '#90EE90';
+                ctx.fillRect(0, canvas.height * 0.7, canvas.width, canvas.height * 0.3);
+            }
+            
+            // Рисуем зоны строительства
+            drawBuildZones();
+            
+            // Рисуем здания
+            for (const building of buildings) {
+                building.draw();
+            }
+            
+            // Обновляем и рисуем шарики
+            balls.forEach(ball => {
+                ball.update();
+                ball.draw();
+            });
+            
+            requestAnimationFrame(gameLoop);
+        }
+
+        // Запускаем загрузку изображений и игру
+        loadImages();
+    </script>
+</body>
+</html>
