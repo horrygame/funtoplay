@@ -14,7 +14,6 @@
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             overflow: hidden;
-            background: linear-gradient(to bottom, #1e5799, #207cca);
             color: #333;
         }
         
@@ -86,26 +85,21 @@
             position: absolute;
             width: 40px;
             height: 40px;
-            background: url('red_guy.png');
+            background: url('red_guys.png');
             background-size: contain;
             background-repeat: no-repeat;
-            transition: left 0.2s linear, top 0.2s linear;
             z-index: 10;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            color: white;
-            font-weight: bold;
-            font-size: 14px;
+            transition: transform 0.2s ease-out;
         }
         
         .unit.jumping {
-            animation: jump 0.3s ease-in-out infinite alternate;
+            animation: jump 0.3s ease-out;
         }
         
         @keyframes jump {
             0% { transform: translateY(0); }
-            100% { transform: translateY(-15px); }
+            50% { transform: translateY(-20px); }
+            100% { transform: translateY(0); }
         }
         
         .house {
@@ -132,14 +126,14 @@
             position: absolute;
             width: 100px;
             height: 100px;
-            background: url('not_ready_grow.png');
+            background: url('not_ready_ground.png');
             background-size: contain;
             background-repeat: no-repeat;
             z-index: 5;
         }
         
         .ground.ready {
-            background: url('ready_grow.png');
+            background: url('ready_ground.png');
             background-size: contain;
             background-repeat: no-repeat;
         }
@@ -204,51 +198,20 @@
         
         .level-badge {
             position: absolute;
-            top: -10px;
-            right: -10px;
+            top: -5px;
+            right: -5px;
             background: gold;
             color: #333;
-            width: 25px;
-            height: 25px;
+            width: 20px;
+            height: 20px;
             border-radius: 50%;
             display: flex;
             justify-content: center;
             align-items: center;
-            font-size: 14px;
+            font-size: 12px;
             font-weight: bold;
             box-shadow: 0 0 5px rgba(0, 0, 0, 0.5);
             z-index: 11;
-        }
-        
-        .shadow {
-            position: absolute;
-            width: 30px;
-            height: 10px;
-            background: rgba(0, 0, 0, 0.3);
-            border-radius: 50%;
-            bottom: -5px;
-            left: 5px;
-            z-index: 9;
-            transition: all 0.2s ease;
-        }
-        
-        .speed-control {
-            position: absolute;
-            bottom: 90px;
-            left: 50%;
-            transform: translateX(-50%);
-            background: rgba(0, 0, 0, 0.7);
-            padding: 10px 20px;
-            border-radius: 15px;
-            display: flex;
-            gap: 10px;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5);
-            color: white;
-        }
-        
-        .speed-control button {
-            padding: 8px 15px;
-            font-size: 14px;
         }
     </style>
 </head>
@@ -270,13 +233,6 @@
         <div class="forest" style="top: 150px; left: 200px;"></div>
         <div class="ground" style="top: 450px; left: 200px;"></div>
         
-        <div class="speed-control">
-            <span>Скорость игры:</span>
-            <button id="speed-slow">Медленно</button>
-            <button id="speed-normal">Нормально</button>
-            <button id="speed-fast">Быстро</button>
-        </div>
-        
         <div class="controls">
             <button id="send-wood">Отправить за деревом (1)</button>
             <button id="send-food">Отправить за едой (1)</button>
@@ -290,21 +246,6 @@
 
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            // Глобальные настройки скорости
-            let gameSpeed = 1.5; // Множитель скорости (1.0 = нормальная)
-            
-            // Проверка загрузки изображений
-            function checkImageLoad() {
-                const images = document.querySelectorAll('.unit, .house, .forest, .ground, #game-container');
-                images.forEach(img => {
-                    if (!img.complete || img.naturalHeight === 0) {
-                        if (!img.classList.contains('fallback')) {
-                            img.classList.add('fallback');
-                        }
-                    }
-                });
-            }
-            
             // Игровые переменные
             let resources = {
                 wood: 100,
@@ -322,34 +263,9 @@
                 createUnit();
             }
             
-            // Проверяем загрузку изображений
-            setTimeout(checkImageLoad, 1000);
-            
             // Обновляем счетчики
             updateResourceCounters();
             updateUnitCounters();
-            
-            // Настройки скорости игры
-            document.getElementById('speed-slow').addEventListener('click', function() {
-                gameSpeed = 0.7;
-                updateSpeedButtons();
-            });
-            
-            document.getElementById('speed-normal').addEventListener('click', function() {
-                gameSpeed = 1.0;
-                updateSpeedButtons();
-            });
-            
-            document.getElementById('speed-fast').addEventListener('click', function() {
-                gameSpeed = 1.5;
-                updateSpeedButtons();
-            });
-            
-            function updateSpeedButtons() {
-                document.getElementById('speed-slow').classList.toggle('active', gameSpeed === 0.7);
-                document.getElementById('speed-normal').classList.toggle('active', gameSpeed === 1.0);
-                document.getElementById('speed-fast').classList.toggle('active', gameSpeed === 1.5);
-            }
             
             // Функция показа уведомления
             function showNotification(message) {
@@ -375,8 +291,8 @@
                     carrying: 0,
                     target: null,
                     element: null,
-                    shadow: null,
-                    isJumping: false
+                    isMoving: false,
+                    jumpTimeout: null
                 };
                 
                 units.push(unit);
@@ -388,13 +304,6 @@
                 unitElement.style.left = `${unit.x}px`;
                 unitElement.style.top = `${unit.y}px`;
                 
-                // Создаем тень для юнита
-                const shadowElement = document.createElement('div');
-                shadowElement.className = 'shadow';
-                shadowElement.id = `shadow-${unit.id}`;
-                shadowElement.style.left = `${unit.x + 5}px`;
-                shadowElement.style.top = `${unit.y + 35}px`;
-                
                 // Добавляем бейдж уровня
                 const levelBadge = document.createElement('div');
                 levelBadge.className = 'level-badge';
@@ -402,10 +311,8 @@
                 unitElement.appendChild(levelBadge);
                 
                 document.getElementById('game-container').appendChild(unitElement);
-                document.getElementById('game-container').appendChild(shadowElement);
                 
                 unit.element = unitElement;
-                unit.shadow = shadowElement;
                 return unit;
             }
             
@@ -429,13 +336,15 @@
             
             // Функция прыжка юнита
             function jumpUnit(unit) {
-                if (!unit.isJumping && unit.task !== null) {
-                    unit.isJumping = true;
-                    unit.element.classList.add('jumping');
-                } else if (unit.task === null && unit.isJumping) {
-                    unit.isJumping = false;
-                    unit.element.classList.remove('jumping');
-                }
+                const element = unit.element;
+                
+                // Добавляем класс для анимации прыжка
+                element.classList.add('jumping');
+                
+                // Убираем класс после завершения анимации
+                setTimeout(() => {
+                    element.classList.remove('jumping');
+                }, 300);
             }
             
             // Функция отправки юнита за деревом
@@ -445,7 +354,6 @@
                     freeUnit.task = 'gathering_wood';
                     freeUnit.target = { ...forestPosition };
                     moveUnitToTarget(freeUnit);
-                    jumpUnit(freeUnit);
                     updateUnitCounters();
                 }
             });
@@ -457,7 +365,6 @@
                     freeUnit.task = 'gathering_food';
                     freeUnit.target = { ...groundPosition };
                     moveUnitToTarget(freeUnit);
-                    jumpUnit(freeUnit);
                     updateUnitCounters();
                 }
             });
@@ -481,10 +388,14 @@
                 }
             });
             
-            // Функция перемещения юнита к цели
+            // Функция перемещения юнита к цели с прыжками
             function moveUnitToTarget(unit) {
+                if (unit.jumpTimeout) {
+                    clearTimeout(unit.jumpTimeout);
+                    unit.jumpTimeout = null;
+                }
+                
                 const element = unit.element;
-                const shadow = unit.shadow;
                 const dx = unit.target.x - unit.x;
                 const dy = unit.target.y - unit.y;
                 const distance = Math.sqrt(dx * dx + dy * dy);
@@ -494,31 +405,22 @@
                     if (unit.task === 'gathering_wood') {
                         // Начинаем собирать дерево
                         unit.carrying = 0;
-                        const gatherTime = (2000 / unit.level) / gameSpeed; // Время сбора зависит от уровня и скорости игры
-                        
-                        // Останавливаем прыжок во время сбора
-                        unit.isJumping = false;
-                        element.classList.remove('jumping');
+                        const gatherTime = 3000 / unit.level;
                         
                         setTimeout(() => {
                             unit.carrying = unit.capacity;
                             unit.task = 'returning_wood';
                             unit.target = { ...housePosition };
                             moveUnitToTarget(unit);
-                            jumpUnit(unit);
                         }, gatherTime);
                     } 
                     else if (unit.task === 'gathering_food') {
                         // Начинаем собирать еду
                         unit.carrying = 0;
-                        const growTime = (3000 / unit.level) / gameSpeed; // Время выращивания зависит от уровня и скорости игры
+                        const growTime = 5000 / unit.level;
                         
                         // Меняем текстуру грядки на "готова"
                         document.querySelector('.ground').classList.add('ready');
-                        
-                        // Останавливаем прыжок во время сбора
-                        unit.isJumping = false;
-                        element.classList.remove('jumping');
                         
                         setTimeout(() => {
                             unit.carrying = unit.capacity;
@@ -529,7 +431,6 @@
                             document.querySelector('.ground').classList.remove('ready');
                             
                             moveUnitToTarget(unit);
-                            jumpUnit(unit);
                         }, growTime);
                     }
                     else if (unit.task === 'returning_wood') {
@@ -538,10 +439,6 @@
                         unit.carrying = 0;
                         unit.task = null;
                         unit.target = null;
-                        
-                        // Останавливаем прыжок
-                        unit.isJumping = false;
-                        element.classList.remove('jumping');
                         
                         updateResourceCounters();
                         updateUnitCounters();
@@ -553,29 +450,27 @@
                         unit.task = null;
                         unit.target = null;
                         
-                        // Останавливаем прыжок
-                        unit.isJumping = false;
-                        element.classList.remove('jumping');
-                        
                         updateResourceCounters();
                         updateUnitCounters();
                     }
                     return;
                 }
                 
-                // Продолжаем движение с прыжками
-                const speed = 4 * gameSpeed; // Увеличили базовую скорость и умножаем на множитель
+                // Делаем прыжок
+                jumpUnit(unit);
+                
+                // Продолжаем движение короткими прыжками
+                const speed = 2;
                 unit.x += (dx / distance) * speed;
                 unit.y += (dy / distance) * speed;
                 
                 element.style.left = `${unit.x}px`;
                 element.style.top = `${unit.y}px`;
                 
-                // Обновляем позицию тени
-                shadow.style.left = `${unit.x + 5}px`;
-                shadow.style.top = `${unit.y + 35}px`;
-                
-                requestAnimationFrame(() => moveUnitToTarget(unit));
+                // Замираем на 0.5 секунды после прыжка
+                unit.jumpTimeout = setTimeout(() => {
+                    moveUnitToTarget(unit);
+                }, 500);
             }
             
             // Потребление еды юнитами
@@ -590,22 +485,10 @@
                 
                 if (resources.food < 0) {
                     resources.food = 0;
-                    // Если еда закончилась, останавливаем всех юнитов
-                    if (resources.food === 0) {
-                        units.forEach(unit => {
-                            if (unit.task !== null) {
-                                unit.isJumping = false;
-                                unit.element.classList.remove('jumping');
-                            }
-                        });
-                    }
                 }
                 
                 updateResourceCounters();
             }, 1000);
-            
-            // Инициализация кнопок скорости
-            updateSpeedButtons();
         });
     </script>
 </body>
