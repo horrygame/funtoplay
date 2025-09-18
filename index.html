@@ -3,667 +3,215 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Survival of Red Balls</title>
+    <title>Прыгающие шарики</title>
     <style>
-        * {
-            box-sizing: border-box;
+        body {
             margin: 0;
             padding: 0;
-        }
-        
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             overflow: hidden;
-            background: linear-gradient(to bottom, #1e5799, #207cca);
-            color: #333;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #2c3e50;
+            font-family: Arial, sans-serif;
         }
         
         #game-container {
             position: relative;
-            width: 100vw;
-            height: 100vh;
+            width: 800px;
+            height: 600px;
             overflow: hidden;
-            background: url('bg_game.png');
-            background-size: cover;
+            border-radius: 10px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
         }
         
-        .game-header {
+        #game-bg {
             position: absolute;
+            width: 100%;
+            height: 100%;
             top: 0;
             left: 0;
-            right: 0;
-            display: flex;
-            justify-content: space-between;
-            padding: 15px;
-            background: rgba(0, 0, 0, 0.6);
-            color: white;
-            z-index: 100;
         }
         
-        .resource-counter, .unit-info {
-            background: rgba(0, 0, 0, 0.7);
-            padding: 12px 20px;
-            border-radius: 8px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
-        }
-        
-        .resource-counter div, .unit-info div {
-            margin: 5px 0;
-            font-size: 16px;
-            display: flex;
-            align-items: center;
-        }
-        
-        .resource-counter span, .unit-info span {
-            margin-left: 8px;
-            font-weight: bold;
-            color: #ffcc00;
-        }
-        
-        .icon {
-            display: inline-block;
-            width: 20px;
-            height: 20px;
-            margin-right: 8px;
-        }
-        
-        .wood-icon {
-            background-color: #8B4513;
-            border-radius: 50%;
-        }
-        
-        .food-icon {
-            background-color: #FF6347;
-            border-radius: 50%;
-        }
-        
-        .unit-icon {
-            background-color: #FF0000;
-            border-radius: 50%;
-        }
-        
-        .unit {
+        .ball {
             position: absolute;
-            width: 40px;
-            height: 40px;
-            background: url('red_guys.png');
-            background-size: contain;
-            background-repeat: no-repeat;
-            transition: left 0.2s linear, top 0.2s linear;
-            z-index: 10;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            color: white;
-            font-weight: bold;
-            font-size: 14px;
-            transform-origin: center bottom;
+            transition: transform 0.5s ease-out;
         }
         
-        .house {
-            position: absolute;
-            width: 100px;
-            height: 100px;
-            background: url('basic_house.png');
-            background-size: contain;
-            background-repeat: no-repeat;
-            z-index: 5;
-        }
-        
-        .forest {
-            position: absolute;
-            width: 100px;
-            height: 100px;
-            background: url('forest.png');
-            background-size: contain;
-            background-repeat: no-repeat;
-            z-index: 5;
-        }
-        
-        .ground {
-            position: absolute;
-            width: 100px;
-            height: 100px;
-            background: url('not_ready_ground.png');
-            background-size: contain;
-            background-repeat: no-repeat;
-            z-index: 5;
-        }
-        
-        .ground.ready {
-            background: url('ready_ground.png');
-            background-size: contain;
-            background-repeat: no-repeat;
-        }
-        
-        .controls {
-            position: absolute;
-            bottom: 20px;
-            left: 50%;
-            transform: translateX(-50%);
-            background: rgba(0, 0, 0, 0.7);
-            padding: 15px 25px;
-            border-radius: 15px;
-            display: flex;
-            gap: 15px;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5);
-        }
-        
-        button {
-            padding: 12px 20px;
-            border: none;
-            border-radius: 8px;
-            background: linear-gradient(to bottom, #4CAF50, #2E8B57);
-            color: white;
-            cursor: pointer;
-            font-size: 16px;
-            font-weight: bold;
-            transition: all 0.2s ease;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
-        }
-        
-        button:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 8px rgba(0, 0, 0, 0.4);
-        }
-        
-        button:active {
-            transform: translateY(1px);
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
-        }
-        
-        button:disabled {
-            background: linear-gradient(to bottom, #cccccc, #999999);
-            cursor: not-allowed;
-            transform: none;
-            box-shadow: none;
-        }
-        
-        .notification {
+        #score {
             position: absolute;
             top: 20px;
-            left: 50%;
-            transform: translateX(-50%);
-            background: rgba(255, 215, 0, 0.9);
-            color: #333;
-            padding: 10px 20px;
-            border-radius: 8px;
-            font-weight: bold;
-            opacity: 0;
-            transition: opacity 0.3s ease;
-            z-index: 1000;
-        }
-        
-        .level-badge {
-            position: absolute;
-            top: -10px;
-            right: -10px;
-            background: gold;
-            color: #333;
-            width: 25px;
-            height: 25px;
-            border-radius: 50%;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            font-size: 14px;
-            font-weight: bold;
-            box-shadow: 0 0 5px rgba(0, 0, 0, 0.5);
-            z-index: 11;
-        }
-        
-        /* Запасные стили на случай отсутствия изображений */
-        .unit.fallback {
-            background: #ff0000;
-            border-radius: 50%;
-            box-shadow: 0 0 10px rgba(255, 0, 0, 0.7);
-        }
-        
-        .house.fallback {
-            background: #8B4513;
-            border: 3px solid #5D2906;
-            border-radius: 10px;
-        }
-        
-        .forest.fallback {
-            background: #228B22;
-            border: 3px solid #006400;
-            border-radius: 10px;
-        }
-        
-        .ground.fallback {
-            background: #D2B48C;
-            border: 3px solid #A52A2A;
-            border-radius: 10px;
-        }
-        
-        .ground.ready.fallback {
-            background: #32CD32;
-        }
-        
-        .shadow {
-            position: absolute;
-            width: 30px;
-            height: 10px;
-            background: rgba(0, 0, 0, 0.3);
-            border-radius: 50%;
-            z-index: 9;
-            transition: all 0.3s ease;
-        }
-        
-        .speed-control {
-            position: absolute;
-            bottom: 90px;
-            left: 50%;
-            transform: translateX(-50%);
-            background: rgba(0, 0, 0, 0.7);
-            padding: 10px 20px;
-            border-radius: 15px;
-            display: flex;
-            gap: 10px;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5);
+            left: 20px;
             color: white;
+            font-size: 24px;
+            font-weight: bold;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.7);
+            z-index: 10;
         }
         
-        .speed-control button {
-            padding: 8px 15px;
-            font-size: 14px;
+        #start-btn {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            padding: 15px 30px;
+            font-size: 20px;
+            background-color: #e74c3c;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            z-index: 100;
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.5);
         }
         
-        .active-speed {
-            background: linear-gradient(to bottom, #FFA500, #FF8C00) !important;
-            box-shadow: 0 0 10px rgba(255, 165, 0, 0.7) !important;
+        #start-btn:hover {
+            background-color: #c0392b;
         }
     </style>
 </head>
 <body>
     <div id="game-container">
-        <div class="game-header">
-            <div class="resource-counter">
-                <div><span class="icon wood-icon"></span>Дерево: <span id="wood-count">100</span></div>
-                <div><span class="icon food-icon"></span>Еда: <span id="food-count">100</span></div>
-            </div>
-            
-            <div class="unit-info">
-                <div><span class="icon unit-icon"></span>Юнитов: <span id="unit-count">3</span></div>
-                <div>Свободно: <span id="free-unit-count">3</span></div>
-            </div>
-        </div>
-        
-        <div class="house" style="top: 300px; left: 400px;"></div>
-        <div class="forest" style="top: 150px; left: 200px;"></div>
-        <div class="ground" style="top: 450px; left: 200px;"></div>
-        
-        <div class="speed-control">
-            <span>Скорость игры:</span>
-            <button id="speed-slow">Медленно</button>
-            <button id="speed-normal">Нормально</button>
-            <button id="speed-fast">Быстро</button>
-        </div>
-        
-        <div class="controls">
-            <button id="send-wood">Отправить за деревом (1)</button>
-            <button id="send-food">Отправить за едой (1)</button>
-            <button id="upgrade-unit">Улучшить юнита (50 дерева)</button>
-        </div>
-        
-        <div class="notification" id="notification"></div>
-        
-        <!-- Юниты будут добавляться динамически -->
+        <img id="game-bg" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAASwAAACoCAMAAABt9SM9AAAAA1BMVEXu7u6+NTpLAAAAR0lEQVR4nO3BAQEAAACCIP+vbkhAAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAO8GxYgAAb0jQcAAAAASUVORK5CYII=" alt="Игровой фон">
+        <div id="score">Шариков: 0</div>
+        <button id="start-btn">Начать игру</button>
     </div>
 
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            // Глобальные настройки скорости
-            let gameSpeed = 1.5; // Множитель скорости (1.0 = нормальная)
+            const gameContainer = document.getElementById('game-container');
+            const scoreElement = document.getElementById('score');
+            const startBtn = document.getElementById('start-btn');
+            const balls = [];
+            let ballCount = 0;
+            let gameInterval;
             
-            // Проверка загрузки изображений
-            function checkImageLoad() {
-                const images = document.querySelectorAll('.unit, .house, .forest, .ground, #game-container');
-                images.forEach(img => {
-                    if (!img.complete || img.naturalHeight === 0) {
-                        if (!img.classList.contains('fallback')) {
-                            img.classList.add('fallback');
+            // Замените это на ваше изображение bg_game.png в формате base64 или URL
+            const bgImageUrl = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAASwAAACoCAMAAABt9SM9AAAAA1BMVEXu7u6+NTpLAAAAR0lEQVR4nO3BAQEAAACCIP+vbkhAAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAO8GxYgAAb0jQcAAAAASUVORK5CYII=";
+            
+            // Замените это на ваше изображение red_guys.png в формате base64 или URL
+            const ballImageUrl = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACgAAAAoCAYAAACM/rhtAAAACXBIWXMAAAsTAAALEwEAmpwYAAABCElEQVRYw+2Y0Q6DIAxFeVH+/2t3Ykw2HqRUKLgkb+kmjfFwKIVhGIZhGIZhGIZhGIZhGIZhGOZfSCl9p5S+c85vKeVnzvn1HjnnZ0rpI8Z4W9V3jPEjxviVc36s6jvn/BpjfI4x3kMIhxDCdTfGGG4hhEsI4byq7xDCJYRwXtn3MAz7YRj2wzDsh2HYD8OwH4ZhPwzDfhiG/TAM+2EY9sMw7Idh2A/DsB+GYT8Mw34Yhv0wDPthGPbDMOyHYdgPw7AfhmE/DMN+GIb9MAz7YRj2wzDsh2HYD8OwH4ZhPwzDfhiG/TAM+2EY9sMw7Idh2A/DsB+GYT8Mw34Yhv0wDPthGPbDMOyHYf4S5gVlVk4nLdcpggAAAABJRU5ErkJggg==";
+            
+            document.getElementById('game-bg').src = bgImageUrl;
+            
+            // Создание шарика
+            function createBall() {
+                const ball = document.createElement('img');
+                ball.src = ballImageUrl;
+                ball.className = 'ball';
+                
+                const size = 30 + Math.random() * 30;
+                const initialSize = size * 0.3;
+                
+                ball.style.width = `${initialSize}px`;
+                ball.style.height = `${initialSize}px`;
+                
+                // Начальная позиция
+                const x = Math.random() * (gameContainer.offsetWidth - initialSize);
+                const y = Math.random() * (gameContainer.offsetHeight - initialSize);
+                
+                ball.style.left = `${x}px`;
+                ball.style.top = `${y}px`;
+                
+                gameContainer.appendChild(ball);
+                
+                balls.push({
+                    element: ball,
+                    x: x,
+                    y: y,
+                    size: size,
+                    currentSize: initialSize,
+                    growing: true,
+                    pausing: false,
+                    pauseTime: 0
+                });
+                
+                ballCount++;
+                scoreElement.textContent = `Шариков: ${ballCount}`;
+            }
+            
+            // Обновление состояния шариков
+            function updateBalls(deltaTime) {
+                for (const ball of balls) {
+                    if (ball.pausing) {
+                        ball.pauseTime += deltaTime;
+                        if (ball.pauseTime >= 500) {
+                            ball.pausing = false;
+                            ball.pauseTime = 0;
+                            ball.growing = true;
+                        }
+                        continue;
+                    }
+                    
+                    if (ball.growing) {
+                        ball.currentSize += deltaTime * 0.1;
+                        if (ball.currentSize >= ball.size) {
+                            ball.currentSize = ball.size;
+                            ball.growing = false;
+                        }
+                    } else {
+                        ball.currentSize -= deltaTime * 0.1;
+                        if (ball.currentSize <= ball.size * 0.3) {
+                            ball.currentSize = ball.size * 0.3;
+                            ball.growing = true;
+                            ball.pausing = true;
                         }
                     }
-                });
-            }
-            
-            // Игровые переменные
-            let resources = {
-                wood: 100,
-                food: 100
-            };
-            
-            let units = [];
-            let unitIdCounter = 1;
-            const housePosition = { x: 400, y: 300 };
-            const forestPosition = { x: 200, y: 150 };
-            const groundPosition = { x: 200, y: 450 };
-            
-            // Создаем изначальных юнитов
-            for (let i = 0; i < 3; i++) {
-                createUnit();
-            }
-            
-            // Проверяем загрузку изображений
-            setTimeout(checkImageLoad, 1000);
-            
-            // Обновляем счетчики
-            updateResourceCounters();
-            updateUnitCounters();
-            
-            // Настройки скорости игры
-            document.getElementById('speed-slow').addEventListener('click', function() {
-                gameSpeed = 0.7;
-                updateSpeedButtons();
-            });
-            
-            document.getElementById('speed-normal').addEventListener('click', function() {
-                gameSpeed = 1.0;
-                updateSpeedButtons();
-            });
-            
-            document.getElementById('speed-fast').addEventListener('click', function() {
-                gameSpeed = 2.0;
-                updateSpeedButtons();
-            });
-            
-            function updateSpeedButtons() {
-                document.getElementById('speed-slow').classList.toggle('active-speed', gameSpeed === 0.7);
-                document.getElementById('speed-normal').classList.toggle('active-speed', gameSpeed === 1.0);
-                document.getElementById('speed-fast').classList.toggle('active-speed', gameSpeed === 2.0);
-            }
-            
-            // Функция показа уведомления
-            function showNotification(message) {
-                const notification = document.getElementById('notification');
-                notification.textContent = message;
-                notification.style.opacity = '1';
-                
-                setTimeout(() => {
-                    notification.style.opacity = '0';
-                }, 2000);
-            }
-            
-            // Функция создания юнита
-            function createUnit() {
-                const unit = {
-                    id: unitIdCounter++,
-                    x: housePosition.x + 20 + Math.random() * 60,
-                    y: housePosition.y + 20 + Math.random() * 60,
-                    task: null,
-                    level: 1,
-                    foodConsumption: 0.1,
-                    capacity: 100,
-                    carrying: 0,
-                    target: null,
-                    element: null,
-                    shadow: null,
-                    isJumping: false,
-                    jumpPhase: 0, // 0 = на земле, 1 = подпрыгивание, 2 = в воздухе, 3 = приземление
-                    jumpProgress: 0,
-                    jumpPause: 0
-                };
-                
-                units.push(unit);
-                
-                // Создаем DOM элемент для юнита
-                const unitElement = document.createElement('div');
-                unitElement.className = 'unit';
-                unitElement.id = `unit-${unit.id}`;
-                unitElement.style.left = `${unit.x}px`;
-                unitElement.style.top = `${unit.y}px`;
-                
-                // Создаем тень для юнита
-                const shadowElement = document.createElement('div');
-                shadowElement.className = 'shadow';
-                shadowElement.id = `shadow-${unit.id}`;
-                shadowElement.style.left = `${unit.x + 5}px`;
-                shadowElement.style.top = `${unit.y + 35}px`;
-                
-                // Добавляем бейдж уровня
-                const levelBadge = document.createElement('div');
-                levelBadge.className = 'level-badge';
-                levelBadge.textContent = unit.level;
-                unitElement.appendChild(levelBadge);
-                
-                document.getElementById('game-container').appendChild(unitElement);
-                document.getElementById('game-container').appendChild(shadowElement);
-                
-                unit.element = unitElement;
-                unit.shadow = shadowElement;
-                return unit;
-            }
-            
-            // Функция обновления счетчиков ресурсов
-            function updateResourceCounters() {
-                document.getElementById('wood-count').textContent = Math.floor(resources.wood);
-                document.getElementById('food-count').textContent = Math.floor(resources.food);
-            }
-            
-            // Функция обновления счетчиков юнитов
-            function updateUnitCounters() {
-                const freeUnits = units.filter(u => u.task === null).length;
-                document.getElementById('unit-count').textContent = units.length;
-                document.getElementById('free-unit-count').textContent = freeUnits;
-                
-                // Активируем/деактивируем кнопки в зависимости от доступных юнитов
-                document.getElementById('send-wood').disabled = freeUnits === 0;
-                document.getElementById('send-food').disabled = freeUnits === 0;
-                document.getElementById('upgrade-unit').disabled = resources.wood < 50 || freeUnits === 0;
-            }
-            
-            // Функция анимации прыжка
-            function updateJump(unit) {
-                const element = unit.element;
-                const shadow = unit.shadow;
-                
-                if (unit.task === null) {
-                    // Сброс анимации, если юнит не двигается
-                    element.style.transform = 'scale(1)';
-                    shadow.style.transform = 'scale(1)';
-                    shadow.style.opacity = '1';
-                    unit.jumpPhase = 0;
-                    unit.jumpProgress = 0;
-                    unit.jumpPause = 0;
-                    return;
-                }
-                
-                // Обновляем фазу прыжка
-                if (unit.jumpPhase === 0) {
-                    // На земле - начинаем прыжок
-                    unit.jumpPhase = 1;
-                    unit.jumpProgress = 0;
-                } else if (unit.jumpPhase === 1) {
-                    // Фаза подпрыгивания
-                    unit.jumpProgress += 0.05 * gameSpeed;
-                    if (unit.jumpProgress >= 1) {
-                        unit.jumpPhase = 2;
-                        unit.jumpProgress = 0;
+                    
+                    ball.element.style.width = `${ball.currentSize}px`;
+                    ball.element.style.height = `${ball.currentSize}px`;
+                    
+                    // Двигаем шарик
+                    const speed = 0.05 * (ball.size / 30);
+                    ball.x += (Math.random() - 0.5) * deltaTime * speed;
+                    ball.y += (Math.random() - 0.5) * deltaTime * speed;
+                    
+                    // Проверяем границы
+                    if (ball.x < 0) ball.x = 0;
+                    if (ball.y < 0) ball.y = 0;
+                    if (ball.x > gameContainer.offsetWidth - ball.currentSize) {
+                        ball.x = gameContainer.offsetWidth - ball.currentSize;
+                    }
+                    if (ball.y > gameContainer.offsetHeight - ball.currentSize) {
+                        ball.y = gameContainer.offsetHeight - ball.currentSize;
                     }
                     
-                    const scale = 1 + unit.jumpProgress * 0.3;
-                    const offsetY = -20 * unit.jumpProgress;
-                    
-                    element.style.transform = `translateY(${offsetY}px) scale(${scale})`;
-                    shadow.style.transform = `scale(${1 - unit.jumpProgress * 0.5})`;
-                    shadow.style.opacity = `${1 - unit.jumpProgress * 0.7}`;
-                } else if (unit.jumpPhase === 2) {
-                    // Фаза в воздухе (пауза)
-                    unit.jumpProgress += 0.02 * gameSpeed;
-                    if (unit.jumpProgress >= 1) {
-                        unit.jumpPhase = 3;
-                        unit.jumpProgress = 0;
-                    }
-                } else if (unit.jumpPhase === 3) {
-                    // Фаза приземления
-                    unit.jumpProgress += 0.05 * gameSpeed;
-                    if (unit.jumpProgress >= 1) {
-                        unit.jumpPhase = 0;
-                        unit.jumpProgress = 0;
-                        unit.jumpPause = 0.5; // Пауза на 0.5 секунды
-                    }
-                    
-                    const scale = 1.3 - unit.jumpProgress * 0.3;
-                    const offsetY = -20 + 20 * unit.jumpProgress;
-                    
-                    element.style.transform = `translateY(${offsetY}px) scale(${scale})`;
-                    shadow.style.transform = `scale(${0.5 + unit.jumpProgress * 0.5})`;
-                    shadow.style.opacity = `${0.3 + unit.jumpProgress * 0.7}`;
-                }
-                
-                // Обработка паузы после приземления
-                if (unit.jumpPause > 0) {
-                    unit.jumpPause -= 0.016 * gameSpeed;
-                    if (unit.jumpPause <= 0) {
-                        unit.jumpPause = 0;
-                    }
+                    ball.element.style.left = `${ball.x}px`;
+                    ball.element.style.top = `${ball.y}px`;
                 }
             }
             
-            // Функция отправки юнита за деревом
-            document.getElementById('send-wood').addEventListener('click', function() {
-                const freeUnit = units.find(u => u.task === null);
-                if (freeUnit) {
-                    freeUnit.task = 'gathering_wood';
-                    freeUnit.target = { ...forestPosition };
-                    moveUnitToTarget(freeUnit);
-                    updateUnitCounters();
-                }
-            });
-            
-            // Функция отправки юнита за едой
-            document.getElementById('send-food').addEventListener('click', function() {
-                const freeUnit = units.find(u => u.task === null);
-                if (freeUnit) {
-                    freeUnit.task = 'gathering_food';
-                    freeUnit.target = { ...groundPosition };
-                    moveUnitToTarget(freeUnit);
-                    updateUnitCounters();
-                }
-            });
-            
-            // Функция улучшения юнита
-            document.getElementById('upgrade-unit').addEventListener('click', function() {
-                if (resources.wood >= 50) {
-                    const freeUnit = units.find(u => u.task === null);
-                    if (freeUnit) {
-                        resources.wood -= 50;
-                        freeUnit.level += 1;
-                        freeUnit.capacity = 100 * freeUnit.level;
-                        freeUnit.foodConsumption = 0.1 * freeUnit.level;
-                        
-                        // Обновляем отображение уровня
-                        freeUnit.element.querySelector('.level-badge').textContent = freeUnit.level;
-                        
-                        updateResourceCounters();
-                        showNotification(`Юнит улучшен до уровня ${freeUnit.level}!`);
-                    }
-                }
-            });
-            
-            // Функция перемещения юнита к цели
-            function moveUnitToTarget(unit) {
-                const element = unit.element;
-                const shadow = unit.shadow;
-                const dx = unit.target.x - unit.x;
-                const dy = unit.target.y - unit.y;
-                const distance = Math.sqrt(dx * dx + dy * dy);
+            // Запуск игры
+            function startGame() {
+                startBtn.style.display = 'none';
                 
-                // Обновляем анимацию прыжка
-                updateJump(unit);
-                
-                if (distance < 5) {
-                    // Юнит достиг цели
-                    if (unit.task === 'gathering_wood') {
-                        // Начинаем собирать дерево
-                        unit.carrying = 0;
-                        const gatherTime = (2000 / unit.level) / gameSpeed;
-                        
-                        setTimeout(() => {
-                            unit.carrying = unit.capacity;
-                            unit.task = 'returning_wood';
-                            unit.target = { ...housePosition };
-                            moveUnitToTarget(unit);
-                        }, gatherTime);
-                    } 
-                    else if (unit.task === 'gathering_food') {
-                        // Начинаем собирать еду
-                        unit.carrying = 0;
-                        const growTime = (3000 / unit.level) / gameSpeed;
-                        
-                        // Меняем текстуру грядки на "готова"
-                        document.querySelector('.ground').classList.add('ready');
-                        
-                        setTimeout(() => {
-                            unit.carrying = unit.capacity;
-                            unit.task = 'returning_food';
-                            unit.target = { ...housePosition };
-                            
-                            // Возвращаем текстуру грядки на "не готова"
-                            document.querySelector('.ground').classList.remove('ready');
-                            
-                            moveUnitToTarget(unit);
-                        }, growTime);
-                    }
-                    else if (unit.task === 'returning_wood') {
-                        // Возвращаем дерево домой
-                        resources.wood += unit.carrying;
-                        unit.carrying = 0;
-                        unit.task = null;
-                        unit.target = null;
-                        
-                        updateResourceCounters();
-                        updateUnitCounters();
-                    }
-                    else if (unit.task === 'returning_food') {
-                        // Возвращаем еду домой
-                        resources.food += unit.carrying;
-                        unit.carrying = 0;
-                        unit.task = null;
-                        unit.target = null;
-                        
-                        updateResourceCounters();
-                        updateUnitCounters();
-                    }
-                    return;
+                // Создаем несколько шариков
+                for (let i = 0; i < 5; i++) {
+                    createBall();
                 }
                 
-                // Продолжаем движение
-                const speed = 4 * gameSpeed;
-                unit.x += (dx / distance) * speed;
-                unit.y += (dy / distance) * speed;
+                let lastTime = 0;
+                function gameLoop(timestamp) {
+                    if (!lastTime) lastTime = timestamp;
+                    const deltaTime = timestamp - lastTime;
+                    lastTime = timestamp;
+                    
+                    updateBalls(deltaTime);
+                    
+                    // С небольшой вероятностью добавляем новый шарик
+                    if (Math.random() < 0.002) {
+                        createBall();
+                    }
+                    
+                    gameInterval = requestAnimationFrame(gameLoop);
+                }
                 
-                element.style.left = `${unit.x}px`;
-                element.style.top = `${unit.y}px`;
-                
-                // Обновляем позицию тени
-                shadow.style.left = `${unit.x + 5}px`;
-                shadow.style.top = `${unit.y + 35}px`;
-                
-                requestAnimationFrame(() => moveUnitToTarget(unit));
+                gameInterval = requestAnimationFrame(gameLoop);
             }
             
-            // Потребление еды юнитами
-            setInterval(() => {
-                let totalConsumption = 0;
-                
-                units.forEach(unit => {
-                    totalConsumption += unit.foodConsumption;
-                });
-                
-                resources.food -= totalConsumption;
-                
-                if (resources.food < 0) {
-                    resources.food = 0;
-                }
-                
-                updateResourceCounters();
-            }, 1000);
-            
-            // Инициализация кнопок скорости
-            updateSpeedButtons();
+            // Обработчик кнопки начала игры
+            startBtn.addEventListener('click', startGame);
         });
     </script>
 </body>
