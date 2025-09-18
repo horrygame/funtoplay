@@ -37,6 +37,9 @@
         .ball {
             position: absolute;
             transition: transform 0.5s ease-out;
+            border-radius: 50%;
+            background: radial-gradient(circle at 30% 30%, #ff6b6b, #c0392b);
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
         }
         
         #score {
@@ -73,7 +76,7 @@
 </head>
 <body>
     <div id="game-container">
-        <img id="game-bg" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAASwAAACoCAMAAABt9SM9AAAAA1BMVEXu7u6+NTpLAAAAR0lEQVR4nO3BAQEAAACCIP+vbkhAAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAO8GxYgAAb0jQcAAAAASUVORK5CYII=" alt="Игровой фон">
+        <img id="game-bg" src="bg_game.png" alt="Игровой фон">
         <div id="score">Шариков: 0</div>
         <button id="start-btn">Начать игру</button>
     </div>
@@ -90,19 +93,15 @@
             // Замените это на ваше изображение bg_game.png в формате base64 или URL
             const bgImageUrl = "bg_game.png";
             
-            // Замените это на ваше изображение red_guys.png в формате base64 или URL
-            const ballImageUrl = "red_guys.png";
-            
             document.getElementById('game-bg').src = bgImageUrl;
             
             // Создание шарика
             function createBall() {
-                const ball = document.createElement('img');
-                ball.src = ballImageUrl;
+                const ball = document.createElement('div');
                 ball.className = 'ball';
                 
-                const size = 100*1;
-                const initialSize = size * 1;
+                const size = 30 + Math.random() * 40; // Размер от 30 до 70px
+                const initialSize = size * 0.3;
                 
                 ball.style.width = `${initialSize}px`;
                 ball.style.height = `${initialSize}px`;
@@ -114,7 +113,17 @@
                 ball.style.left = `${x}px`;
                 ball.style.top = `${y}px`;
                 
+                // Случайный цвет для шарика
+                const hue = Math.random() * 360;
+                ball.style.background = `radial-gradient(circle at 30% 30%, hsl(${hue}, 100%, 70%), hsl(${hue}, 80%, 50%))`;
+                
                 gameContainer.appendChild(ball);
+                
+                // Направление и скорость движения
+                const speed = 0.05 + Math.random() * 0.05;
+                const angle = Math.random() * Math.PI * 2;
+                const dx = Math.cos(angle) * speed;
+                const dy = Math.sin(angle) * speed;
                 
                 balls.push({
                     element: ball,
@@ -122,6 +131,8 @@
                     y: y,
                     size: size,
                     currentSize: initialSize,
+                    dx: dx,
+                    dy: dy,
                     growing: true,
                     pausing: false,
                     pauseTime: 0
@@ -144,10 +155,11 @@
                         continue;
                     }
                     
+                    // Пульсация размера
                     if (ball.growing) {
                         ball.currentSize += deltaTime * 0.1;
-                        if (ball.currentSize >= ball.size) {
-                            ball.currentSize = ball.size;
+                        if (ball.currentSize >= ball.size * 1.5) { // Максимум в 1.5 раза
+                            ball.currentSize = ball.size * 1.5;
                             ball.growing = false;
                         }
                     } else {
@@ -163,20 +175,27 @@
                     ball.element.style.height = `${ball.currentSize}px`;
                     
                     // Двигаем шарик
-                    const speed = 0.05 * (ball.size / 30);
-                    ball.x += (Math.random() - 0.5) * deltaTime * speed;
-                    ball.y += (Math.random() - 0.5) * deltaTime * speed;
+                    ball.x += ball.dx * deltaTime;
+                    ball.y += ball.dy * deltaTime;
                     
-                    // Проверяем границы
-                    if (ball.x < 0) ball.x = 0;
-                    if (ball.y < 0) ball.y = 0;
-                    if (ball.x > gameContainer.offsetWidth - ball.currentSize) {
+                    // Проверяем границы и отражаем от них
+                    if (ball.x < 0) {
+                        ball.x = 0;
+                        ball.dx = Math.abs(ball.dx);
+                    } else if (ball.x > gameContainer.offsetWidth - ball.currentSize) {
                         ball.x = gameContainer.offsetWidth - ball.currentSize;
-                    }
-                    if (ball.y > gameContainer.offsetHeight - ball.currentSize) {
-                        ball.y = gameContainer.offsetHeight - ball.currentSize;
+                        ball.dx = -Math.abs(ball.dx);
                     }
                     
+                    if (ball.y < 0) {
+                        ball.y = 0;
+                        ball.dy = Math.abs(ball.dy);
+                    } else if (ball.y > gameContainer.offsetHeight - ball.currentSize) {
+                        ball.y = gameContainer.offsetHeight - ball.currentSize;
+                        ball.dy = -Math.abs(ball.dy);
+                    }
+                    
+                    // Плавное перемещение
                     ball.element.style.left = `${ball.x}px`;
                     ball.element.style.top = `${ball.y}px`;
                 }
