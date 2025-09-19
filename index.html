@@ -9,15 +9,60 @@
             margin: 0;
             padding: 0;
             overflow: hidden;
-            background-color: #326432; /* Темно-зеленый фон как запасной вариант */
+            background-color: #326432;
             font-family: Arial, sans-serif;
             color: white;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        #upload-container {
+            margin: 20px;
+            padding: 20px;
+            background-color: rgba(0, 0, 0, 0.7);
+            border-radius: 10px;
+            width: 80%;
+            max-width: 600px;
+        }
+        #upload-container h2 {
+            text-align: center;
+            margin-top: 0;
+        }
+        .upload-section {
+            margin: 15px 0;
+            padding: 10px;
+            background-color: rgba(50, 50, 50, 0.7);
+            border-radius: 5px;
+        }
+        .file-input {
+            margin: 10px 0;
+        }
+        button {
+            margin: 5px 0;
+            padding: 8px 15px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        #start-btn {
+            background-color: #2196F3;
+            padding: 12px 25px;
+            font-size: 18px;
+            margin-top: 20px;
+        }
+        #start-btn:hover {
+            background-color: #0b7dda;
         }
         canvas {
             display: block;
-            position: absolute;
-            top: 0;
-            left: 0;
+            border: 2px solid #333;
+            margin: 10px auto;
         }
         #ui {
             position: absolute;
@@ -28,29 +73,61 @@
             border-radius: 5px;
             z-index: 100;
         }
-        button {
-            margin: 5px 0;
-            padding: 5px 10px;
-            background-color: #444;
-            color: white;
-            border: none;
-            border-radius: 3px;
-            cursor: pointer;
-        }
-        button:hover {
-            background-color: #666;
-        }
         .resource {
             margin: 5px 0;
         }
         .profession-buttons {
             margin-top: 10px;
         }
+        .hidden {
+            display: none;
+        }
     </style>
 </head>
 <body>
-    <canvas id="gameCanvas"></canvas>
-    <div id="ui">
+    <div id="upload-container">
+        <h2>Загрузка текстур для игры</h2>
+        
+        <div class="upload-section">
+            <h3>Фоновое изображение (bg_game.png)</h3>
+            <input type="file" id="bg-upload" class="file-input" accept="image/*">
+        </div>
+        
+        <div class="upload-section">
+            <h3>Изображение шарика (red_guy.png)</h3>
+            <input type="file" id="ball-upload" class="file-input" accept="image/*">
+        </div>
+        
+        <div class="upload-section">
+            <h3>Изображение дома (basic_house.png)</h3>
+            <input type="file" id="house-upload" class="file-input" accept="image/*">
+        </div>
+        
+        <div class="upload-section">
+            <h3>Изображение леса (forest.png)</h3>
+            <input type="file" id="forest-upload" class="file-input" accept="image/*">
+        </div>
+        
+        <div class="upload-section">
+            <h3>Изображение фермы (not_ready_ground.png)</h3>
+            <input type="file" id="farm-upload" class="file-input" accept="image/*">
+        </div>
+        
+        <div class="upload-section">
+            <h3>Иконка дерева (tree_icon.png)</h3>
+            <input type="file" id="tree-icon-upload" class="file-input" accept="image/*">
+        </div>
+        
+        <div class="upload-section">
+            <h3>Иконка еды (food_icon.png)</h3>
+            <input type="file" id="food-icon-upload" class="file-input" accept="image/*">
+        </div>
+        
+        <button id="start-btn">Начать игру</button>
+    </div>
+
+    <canvas id="gameCanvas" class="hidden"></canvas>
+    <div id="ui" class="hidden">
         <div id="timeInfo">День: 50%</div>
         <div class="resource" id="woodInfo">Дерево: 0</div>
         <div class="resource" id="foodInfo">Еда: 0</div>
@@ -88,27 +165,48 @@
         const ballsInfo = document.getElementById('ballsInfo');
         const selectedInfo = document.getElementById('selectedInfo');
         const professionButtons = document.getElementById('professionButtons');
+        const uploadContainer = document.getElementById('upload-container');
+        const startBtn = document.getElementById('start-btn');
 
         // Настройка canvas
         canvas.width = window.innerWidth;
         canvas.height = window.innerHeight;
-        const scaleX = canvas.width / WIDTH;
-        const scaleY = canvas.height / HEIGHT;
+        let scaleX = canvas.width / WIDTH;
+        let scaleY = canvas.height / HEIGHT;
 
         // Глобальные переменные игры
         let balls = [];
         let woodStorage = 0;
         let foodStorage = 0;
-        let gameTime = 360; // Начинаем с середины дня (6 минут)
+        let gameTime = 360;
         let selectedBall = null;
         let lastTime = 0;
+        let imagesLoaded = 0;
+        let totalImages = 7;
 
-        // Время дня (15 минут = 900 секунд, 12 минут день, 3 минуты ночь)
+        // Время дня
         const DAY_NIGHT_CYCLE = 900;
         const DAY_DURATION = 720;
         const NIGHT_DURATION = 180;
 
-        // Изображения (создаем программно)
+        // Объекты для хранения изображений
+        const images = {
+            background: null,
+            ball: null,
+            house: null,
+            forest: null,
+            farm: null,
+            treeIcon: null,
+            foodIcon: null
+        };
+
+        // Позиции объектов
+        const housePos = { x: 100, y: HEIGHT / 2 - 100 };
+        const forestPos = { x: WIDTH - 450, y: 100 };
+        const farmPos = { x: WIDTH - 450, y: HEIGHT - 500 };
+        const storagePos = { x: housePos.x + 100, y: housePos.y + 100 };
+
+        // Функции для создания изображений по умолчанию
         function createCircleImage(size, color) {
             const offscreen = document.createElement('canvas');
             offscreen.width = size;
@@ -214,20 +312,29 @@
             return offscreen;
         }
 
-        // Создаем изображения
-        const ballImage = createCircleImage(40, COLORS.RED);
-        const houseImage = createHouseImage(200, 200);
-        const forestImage = createTreeImage(400, 400);
-        const farmImage = createFarmImage(400, 400);
-        const treeIcon = createCircleImage(30, COLORS.GREEN);
-        const foodIcon = createCircleImage(30, COLORS.YELLOW);
-        const background = createBackground();
-
-        // Позиции объектов
-        const housePos = { x: 100, y: HEIGHT / 2 - 100 };
-        const forestPos = { x: WIDTH - 450, y: 100 };
-        const farmPos = { x: WIDTH - 450, y: HEIGHT - 500 };
-        const storagePos = { x: housePos.x + 100, y: housePos.y + 100 };
+        // Функция загрузки изображения
+        function loadImage(fileInput, imageKey, defaultCreator, ...args) {
+            return new Promise((resolve) => {
+                if (fileInput.files && fileInput.files[0]) {
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        const img = new Image();
+                        img.onload = function() {
+                            images[imageKey] = img;
+                            imagesLoaded++;
+                            resolve();
+                        };
+                        img.src = e.target.result;
+                    };
+                    reader.readAsDataURL(fileInput.files[0]);
+                } else {
+                    // Используем изображение по умолчанию
+                    images[imageKey] = defaultCreator(...args);
+                    imagesLoaded++;
+                    resolve();
+                }
+            });
+        }
 
         // Класс для шариков
         class Ball {
@@ -246,32 +353,27 @@
                 this.pauseDuration = 0.5;
                 this.originalJumpSpeed = this.jumpSpeed;
                 
-                // Новые свойства для профессий и ресурсов
-                this.profession = null; // null, "lumberjack", "farmer"
-                this.carrying = 0; // Количество ресурсов (0-100)
-                this.resourceType = null; // "wood" или "food"
-                this.target = null; // Текущая цель
-                this.state = "idle"; // "idle", "working", "going_home", "sleeping"
+                this.profession = null;
+                this.carrying = 0;
+                this.resourceType = null;
+                this.target = null;
+                this.state = "idle";
                 this.sleeping = false;
                 this.workTimer = 0;
                 this.wakingUp = false;
-                this.nightCall = false; // Флаг, что ночь заставила идти домой
+                this.nightCall = false;
             }
             
             update(dt, isNight, dayProgress) {
-                // Если наступила ночь и шарик не спит, не просыпается и не уже идет домой
                 if (isNight && !this.sleeping && !this.wakingUp && this.state !== "going_home") {
                     this.nightCall = true;
                     this.state = "going_home";
-                    this.target = storagePos; // Идем к складу (дому)
+                    this.target = storagePos;
                 }
                 
-                // Если ночь и шарик уже идет домой
                 if (isNight && this.state === "going_home") {
-                    // Движемся к дому
-                    this.moveTowards(this.target, 1.5); // Увеличиваем скорость при возвращении домой
+                    this.moveTowards(this.target, 1.5);
                     
-                    // Если достигли дома, ложимся спать
                     if (this.distanceTo(this.target) < 10) {
                         this.state = "sleeping";
                         this.sleeping = true;
@@ -282,11 +384,9 @@
                     return;
                 }
                 
-                // Если день и шарик спал, проверяем, пора ли просыпаться
                 if (this.sleeping && dayProgress >= 0.05 && !this.wakingUp) {
                     this.wakingUp = true;
                     this.sleeping = false;
-                    // Если есть ресурсы, сначала несем их на склад
                     if (this.carrying > 0) {
                         this.state = "going_to_storage";
                         this.target = storagePos;
@@ -295,12 +395,10 @@
                     }
                 }
                 
-                // Если шарик просыпается, сбрасываем флаг
                 if (this.wakingUp && !this.sleeping) {
                     this.wakingUp = false;
                 }
                 
-                // Если шарик в состоянии паузы
                 if (this.isPaused) {
                     this.pauseTimer += dt;
                     if (this.pauseTimer >= this.pauseDuration) {
@@ -311,44 +409,35 @@
                     return;
                 }
                 
-                // Если ночь, прерываем выполнение (шарик уже должен спать или идти домой)
                 if (isNight) {
                     return;
                 }
                 
-                // Определяем поведение в зависимости от профессии и состояния
                 if (this.profession === null) {
-                    // Безработный шарик хаотично движется
                     this.idleBehavior(dt);
                 } else {
-                    // Работающий шарик
                     this.workingBehavior(dt);
                 }
             }
             
             idleBehavior(dt) {
-                // Случайное изменение направления
                 if (Math.random() < 0.01) {
                     this.speedX = Math.random() * 1 - 0.5;
                     this.speedY = Math.random() * 1 - 0.5;
                 }
                 
-                // Обновление позиции
                 this.x += this.speedX;
                 this.y += this.speedY;
                 
-                // Прыжок (синусоидальное движение по вертикали)
                 this.jumpPhase += this.jumpSpeed;
                 const verticalOffset = Math.sin(this.jumpPhase) * this.jumpHeight;
                 this.y = this.groundY + verticalOffset;
                 
-                // Проверка, находится ли шарик в нижней точке
                 if (Math.abs(Math.sin(this.jumpPhase) - 1.0) < 0.05) {
                     this.isPaused = true;
                     this.jumpSpeed = 0;
                 }
                 
-                // Проверка границ экрана
                 if (this.x <= 0 || this.x >= WIDTH - this.size) {
                     this.speedX *= -1;
                     this.x = Math.max(0, Math.min(this.x, WIDTH - this.size));
@@ -363,7 +452,6 @@
             
             workingBehavior(dt) {
                 if (this.state === "idle") {
-                    // Выбираем цель в зависимости от профессии
                     if (this.profession === "lumberjack") {
                         this.target = {
                             x: forestPos.x + Math.random() * 300 + 50,
@@ -378,39 +466,32 @@
                         this.state = "going_to_work";
                     }
                 } else if (this.state === "going_to_work") {
-                    // Движемся к цели
                     this.moveTowards(this.target, 1.0);
                     
-                    // Если достигли цели, начинаем работать
                     if (this.distanceTo(this.target) < 10) {
                         this.state = "working";
                         this.workTimer = 0;
                     }
                 } else if (this.state === "working") {
-                    // Работаем (собираем ресурсы)
                     this.workTimer += dt;
-                    if (this.workTimer >= 2.0) { // Каждые 2 секунды собираем ресурсы
+                    if (this.workTimer >= 2.0) {
                         this.workTimer = 0;
                         this.carrying += 10;
                         
-                        // Определяем тип ресурса
                         if (this.profession === "lumberjack") {
                             this.resourceType = "wood";
                         } else {
                             this.resourceType = "food";
                         }
                         
-                        // Если переполнен, идем на склад
                         if (this.carrying >= 100) {
                             this.state = "going_to_storage";
                             this.target = storagePos;
                         }
                     }
                 } else if (this.state === "going_to_storage") {
-                    // Движемся к складу
                     this.moveTowards(this.target, 1.0);
                     
-                    // Если достигли склада, сбрасываем ресурсы
                     if (this.distanceTo(this.target) < 10) {
                         if (this.resourceType === "wood") {
                             woodStorage += this.carrying;
@@ -426,7 +507,6 @@
             }
             
             moveTowards(target, speed) {
-                // Движемся к цели
                 const dx = target.x - this.x;
                 const dy = target.y - this.y;
                 const distance = Math.max(0.1, Math.sqrt(dx * dx + dy * dy));
@@ -434,17 +514,14 @@
                 this.speedX = (dx / distance) * speed;
                 this.speedY = (dy / distance) * speed;
                 
-                // Обновление позиции
                 this.x += this.speedX;
                 this.y += this.speedY;
                 
-                // Прыжок (синусоидальное движение по вертикали)
                 this.jumpPhase += this.jumpSpeed;
                 const verticalOffset = Math.sin(this.jumpPhase) * this.jumpHeight;
                 this.groundY = this.y;
                 this.y = this.groundY + verticalOffset;
                 
-                // Проверка, находится ли шарик в нижней точке
                 if (Math.abs(Math.sin(this.jumpPhase) - 1.0) < 0.05) {
                     this.isPaused = true;
                     this.jumpSpeed = 0;
@@ -458,10 +535,15 @@
             }
             
             draw(ctx) {
-                // Рисуем шарик
-                ctx.drawImage(ballImage, this.x * scaleX, this.y * scaleY, this.size * scaleX, this.size * scaleY);
+                if (images.ball && typeof images.ball !== 'string') {
+                    ctx.drawImage(images.ball, this.x * scaleX, this.y * scaleY, this.size * scaleX, this.size * scaleY);
+                } else {
+                    ctx.fillStyle = COLORS.RED;
+                    ctx.beginPath();
+                    ctx.arc((this.x + this.size/2) * scaleX, (this.y + this.size/2) * scaleY, this.size/2 * scaleX, 0, Math.PI * 2);
+                    ctx.fill();
+                }
                 
-                // Если шарик несет ресурсы, показываем их количество
                 if (this.carrying > 0) {
                     ctx.fillStyle = COLORS.WHITE;
                     ctx.font = `${20 * scaleX}px Arial`;
@@ -471,18 +553,19 @@
                         (this.y - 20) * scaleY
                     );
                     
-                    // Показываем иконку ресурса
-                    const icon = this.resourceType === "wood" ? treeIcon : foodIcon;
-                    ctx.drawImage(
-                        icon, 
-                        (this.x + this.size/2 - 15) * scaleX, 
-                        (this.y - 50) * scaleY, 
-                        30 * scaleX, 
-                        30 * scaleY
-                    );
+                    const icon = this.resourceType === "wood" ? images.treeIcon : images.foodIcon;
+                    if (icon) {
+                        const iconSize = 30;
+                        ctx.drawImage(
+                            icon, 
+                            (this.x + this.size/2 - 15) * scaleX, 
+                            (this.y - 50) * scaleY, 
+                            iconSize * scaleX, 
+                            iconSize * scaleY
+                        );
+                    }
                 }
                 
-                // Если шарик спит, показываем Zzz
                 if (this.sleeping) {
                     ctx.fillStyle = COLORS.WHITE;
                     ctx.font = `${20 * scaleX}px Arial`;
@@ -493,7 +576,6 @@
                     );
                 }
                 
-                // Показываем статус работы над шариком
                 if (!this.sleeping) {
                     let statusText = "";
                     if (this.profession === null) {
@@ -533,11 +615,59 @@
         }
 
         // Инициализация игры
-        function initGame() {
-            // Создание шариков (изначально 3)
+        async function initGame() {
+            // Загрузка изображений
+            await loadImage(
+                document.getElementById('bg-upload'), 
+                'background', 
+                createBackground
+            );
+            
+            await loadImage(
+                document.getElementById('ball-upload'), 
+                'ball', 
+                createCircleImage, 40, COLORS.RED
+            );
+            
+            await loadImage(
+                document.getElementById('house-upload'), 
+                'house', 
+                createHouseImage, 200, 200
+            );
+            
+            await loadImage(
+                document.getElementById('forest-upload'), 
+                'forest', 
+                createTreeImage, 400, 400
+            );
+            
+            await loadImage(
+                document.getElementById('farm-upload'), 
+                'farm', 
+                createFarmImage, 400, 400
+            );
+            
+            await loadImage(
+                document.getElementById('tree-icon-upload'), 
+                'treeIcon', 
+                createCircleImage, 30, COLORS.GREEN
+            );
+            
+            await loadImage(
+                document.getElementById('food-icon-upload'), 
+                'foodIcon', 
+                createCircleImage, 30, COLORS.YELLOW
+            );
+            
+            // Создание шариков
             for (let i = 0; i < 3; i++) {
                 balls.push(new Ball(housePos.x + 100, housePos.y + 100));
             }
+            
+            // Показываем игровые элементы
+            canvas.classList.remove('hidden');
+            ui.classList.remove('hidden');
+            uploadContainer.classList.add('hidden');
             
             // Запуск игрового цикла
             requestAnimationFrame(gameLoop);
@@ -553,63 +683,65 @@
             const dt = (timestamp - lastTime) / 1000;
             lastTime = timestamp;
             
-            // Обновление времени игры
             gameTime += dt;
             
-            // Определяем, день или ночь
             const cyclePosition = gameTime % DAY_NIGHT_CYCLE;
             const isNight = cyclePosition > DAY_DURATION;
             
-            // Расчет прогресса дня (0.0 - 1.0)
             let dayProgress = 0.0;
             if (!isNight) {
                 dayProgress = cyclePosition / DAY_DURATION;
             }
             
-            // Расчет затемнения для ночи
             let darkness = 0;
             if (isNight) {
-                // Плавное затемнение в начале ночи
                 const nightProgress = (cyclePosition - DAY_DURATION) / NIGHT_DURATION;
                 darkness = Math.min(200, Math.floor(nightProgress * 200));
             } else {
-                // Плавное осветление в начале дня
-                if (dayProgress < 0.05) { // Первые 5% дня
+                if (dayProgress < 0.05) {
                     darkness = Math.floor((1 - dayProgress / 0.05) * 200);
                 }
             }
             
-            // Обновление информации в UI
             updateUI(isNight, cyclePosition, dayProgress);
             
-            // Очистка canvas
             ctx.clearRect(0, 0, canvas.width, canvas.height);
             
             // Отрисовка фона
-            ctx.drawImage(background, 0, 0, canvas.width, canvas.height);
+            if (images.background) {
+                ctx.drawImage(images.background, 0, 0, canvas.width, canvas.height);
+            }
             
             // Отрисовка объектов
-            ctx.drawImage(
-                houseImage, 
-                housePos.x * scaleX, 
-                housePos.y * scaleY, 
-                200 * scaleX, 
-                200 * scaleY
-            );
-            ctx.drawImage(
-                forestImage, 
-                forestPos.x * scaleX, 
-                forestPos.y * scaleY, 
-                400 * scaleX, 
-                400 * scaleY
-            );
-            ctx.drawImage(
-                farmImage, 
-                farmPos.x * scaleX, 
-                farmPos.y * scaleY, 
-                400 * scaleX, 
-                400 * scaleY
-            );
+            if (images.house) {
+                ctx.drawImage(
+                    images.house, 
+                    housePos.x * scaleX, 
+                    housePos.y * scaleY, 
+                    200 * scaleX, 
+                    200 * scaleY
+                );
+            }
+            
+            if (images.forest) {
+                ctx.drawImage(
+                    images.forest, 
+                    forestPos.x * scaleX, 
+                    forestPos.y * scaleY, 
+                    400 * scaleX, 
+                    400 * scaleY
+                );
+            }
+            
+            if (images.farm) {
+                ctx.drawImage(
+                    images.farm, 
+                    farmPos.x * scaleX, 
+                    farmPos.y * scaleY, 
+                    400 * scaleX, 
+                    400 * scaleY
+                );
+            }
             
             // Обновление и отрисовка шариков
             for (const ball of balls) {
@@ -623,7 +755,6 @@
                 ctx.fillRect(0, 0, canvas.width, canvas.height);
             }
             
-            // Продолжаем игровой цикл
             requestAnimationFrame(gameLoop);
         }
 
@@ -655,7 +786,6 @@
             const x = event.clientX - rect.left;
             const y = event.clientY - rect.top;
             
-            // Проверка клика по шарику
             for (const ball of balls) {
                 if (ball.isPointInside(x, y)) {
                     selectedBall = ball;
@@ -663,16 +793,16 @@
                 }
             }
             
-            // Сброс выбора, если клик был вне шарика
             selectedBall = null;
         }
 
         function handleKeyDown(event) {
             if (event.key === 'Escape') {
-                // Выход из игры
-                window.close();
+                // Возврат к меню загрузки
+                canvas.classList.add('hidden');
+                ui.classList.add('hidden');
+                uploadContainer.classList.remove('hidden');
             } else if (event.key === ' ' || event.key === 'Space') {
-                // Добавление нового шарика при нажатии пробела
                 balls.push(new Ball(housePos.x + 100, housePos.y + 100));
             }
         }
@@ -680,7 +810,6 @@
         function handleResize() {
             canvas.width = window.innerWidth;
             canvas.height = window.innerHeight;
-            // Пересчитываем масштаб
             scaleX = canvas.width / WIDTH;
             scaleY = canvas.height / HEIGHT;
         }
@@ -691,8 +820,8 @@
             }
         }
 
-        // Запуск игры
-        initGame();
+        // Запуск игры при нажатии кнопки
+        startBtn.addEventListener('click', initGame);
     </script>
 </body>
 </html>
